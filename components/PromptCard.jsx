@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { searchPlayer } from "../pages/api/brawlhalla.js";
+import { searchByName } from "../pages/api/brawlhalla.js";
 import { useRouter } from "next/router";
 import styles from "./PromptCard.module.css";
 
@@ -15,7 +16,7 @@ const PromptCard = () => {
 
   const handleSearch = async () => {
     try {
-      const data = await searchPlayer(text); //Calls searchPlayer function from api file
+      const data = await searchByName(text); //Calls searchPlayer function from api file
       console.log("searched data");
       console.log(data);
       setRankedData(data.rankedStats);

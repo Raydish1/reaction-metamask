@@ -3,15 +3,17 @@ import PromptCard from "../components/PromptCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { searchPlayer } from "./api/brawlhalla.js";
+import {searchByName} from "./api/brawlhalla.js";
 
 const Stats = () => {
   const router = useRouter();
   const brawlhalla_id = router.query.id;
-
+  
   const [rankedData, setRankedData] = useState(null);
   const [playerData, setPlayerData] = useState(null);
 
   useEffect(() => {
+    
     const fetchData = async () => {
       if (brawlhalla_id) {
         try {

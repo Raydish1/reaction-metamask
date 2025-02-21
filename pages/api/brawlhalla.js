@@ -8,6 +8,26 @@
 const BASE_URL = "https://api.brawlhalla.com";
 const apiKey = process.env.NEXT_PUBLIC_BRAWLHALLA_API_KEY; // Ensure this is set in .env.local
 
+export async function searchByName(name) {
+  try {
+    const response = await fetch(`${BASE_URL}/rankings/1v1/us-e/1?name=${name}&api_key=${apiKey}`)
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+      const stats = await response.json();
+      console.log(stats)
+      return searchPlayer(stats[0].brawlhalla_id);
+      const brawlhalla_id = stats.brawlhalla_id;
+      // console.log("before")
+      // console.log(brawlhalla_id)
+      // searchPlayer(brawlhalla_id)
+    
+  } catch (error) {
+    console.error("Error fetching player data:", error)
+    return null;
+  }
+}
+
 export async function searchPlayer(brawlhalla_id) {
   try {
     const response = await fetch(`${BASE_URL}/player/${brawlhalla_id}/ranked?api_key=${apiKey}`);
