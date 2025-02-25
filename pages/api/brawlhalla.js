@@ -40,6 +40,8 @@ export async function searchPlayer(brawlhalla_id) {
       }
     const playerStats = await response2.json();
     const rankedStats = await response.json();
+
+
     return {rankedStats, playerStats}; // Return the fetched data
   } catch (error) {
     console.error("Error fetching player data:", error);

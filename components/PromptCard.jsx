@@ -48,14 +48,18 @@ const PromptCard = () => {
         value={text}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        className={styles.inputBox}
       />
-      <button onClick={handleSearch}>Search!</button>
+      <button onClick={handleSearch} className={styles.button}>
+        Search!
+      </button>
       <p>you typed {text}</p>
       {rankedData && playerData && (
         <div onClick={statRedirect} className={styles.playerCard}>
           <h1>{playerData.name}</h1>
           <h2>{rankedData.rating}</h2>
           <h3>{rankedData.wins / rankedData.games}</h3>
+          <p>{}</p>
         </div>
       )}
     </div>
