@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "/pages/firebase/config";
+import { auth } from "../backend/firebase.js";
 import { signOut } from "firebase/auth";
 
 const myStyle = {

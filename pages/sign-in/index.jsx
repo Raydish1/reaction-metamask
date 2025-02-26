@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth } from "/pages/firebase/config";
+import { auth } from "../../backend/firebase";
 import { useRouter } from "next/navigation";
 import RootLayout from "../layout";
+import { useStateContext } from "../../context/StateContext";
 
 const Signin = () => {
+  const { user, setUser } = useStateContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [signInWithEmailAndPassword, user, loading, error] =
+  const [signInWithEmailAndPassword, loggedInUser, loading, error] =
     useSignInWithEmailAndPassword(auth);
   const router = useRouter();
 
@@ -16,14 +18,20 @@ const Signin = () => {
 
     try {
       const res = await signInWithEmailAndPassword(email, password);
-      console.log("User signed in:", user);
       setEmail("");
       setPassword("");
-      router.push("/");
+      if (res?.user) {
+        setUser(res.user); // Update global user state
+      }
     } catch (err) {
       console.error("Sign-in error:", err);
     }
   };
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   return (
     <RootLayout>

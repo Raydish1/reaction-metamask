@@ -1,26 +1,21 @@
 const { default: RootLayout } = require("./layout");
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "/pages/firebase/config";
+
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { useStateContext } from '../context/StateContext.js';
 
 const Favorites = () => {
-  const [user, loading] = useAuthState(auth);
+  const { user } = useStateContext(); // Get user from global state
   const router = useRouter();
 
+  // Redirect unauthenticated users
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/sign-up");
+    if (user === null) {
+      router.push("/sign-in");
     }
-  }, [user, loading, router]);
+  }, [user, router]);
 
-  if (typeof window === "undefined") return null;
-  /* In Node.js (server-side), window does not exist.
-  In the browser (client-side), window exists.
-  Since useRouter() only works on the client, checking typeof window ensures the code only runs in the browser.
-  
-  If the code is running on the server, the component does not render (return null).
-  Once the page loads on the client, the component will mount properly.*/
+  if (user === undefined) return <p>Loading...</p>; // Show loading state while checking user
 
   return (
     <RootLayout>
