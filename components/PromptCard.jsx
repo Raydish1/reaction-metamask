@@ -57,8 +57,8 @@ const PromptCard = () => {
       {rankedData && playerData && (
         <div onClick={statRedirect} className={styles.playerCard}>
           <h1>{playerData.name}</h1>
-          <h2>{rankedData.rating}</h2>
-          <h3>{rankedData.wins / rankedData.games}</h3>
+          <h2>{rankedData.rating}</h2> 
+          <h3>{Math.round(rankedData.wins / rankedData.games * 100)}% W/L</h3>
           <p>{}</p>
         </div>
       )}

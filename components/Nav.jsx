@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { auth } from "../backend/firebase.js";
 import { signOut } from "firebase/auth";
+import { useStateContext } from "../context/StateContext";
+
 
 const myStyle = {
   fontFamily: "Recursive Sans Linear Light, sans-serif",
   margin: "5px",
   //textAlign: "center",
 };
+
+
 
 const navStyle = {
   padding: "10px",
@@ -15,6 +19,35 @@ const navStyle = {
 };
 
 const Nav = () => {
+  const { user } = useStateContext();
+
+  let authButtons; // store buttons based on auth state
+
+  if (user) {
+    // If user is logged in only show log out button
+    authButtons = (
+      <button
+        onClick={() => signOut(auth)}
+        style={{ marginLeft: "10px", cursor: "pointer" }}
+      >
+        Log Out
+      </button>
+    );
+  } else {
+    //if not logged in, show log in/sign up
+    authButtons = (
+      <>
+        <Link href="/sign-in" style={myStyle}>
+          Login
+        </Link>
+
+        <Link href="/sign-up" style={myStyle}>
+          Sign Up
+        </Link>
+      </>
+    );
+  }
+
   return (
     <div style={navStyle}>
       <nav>
@@ -38,15 +71,7 @@ const Nav = () => {
           Clans
         </Link>
 
-        <Link href="/sign-in" style={myStyle}>
-          Login
-        </Link>
-
-        <Link href="/sign-up" style={myStyle}>
-          Sign Up
-        </Link>
-
-        <button onClick={() => signOut(auth)}>Log Out</button>
+        {authButtons}
       </nav>
     </div>
   );
