@@ -1,7 +1,7 @@
 import { StateContext } from '../context/StateContext.js' // Adjust path if needed
 import Head from "next/head";
 import React from "react";
-import { GlobalStyles } from "../styles/GlobalStyles";
+
 
 function MyApp({ Component, pageProps }) {
   return (<>
@@ -12,7 +12,7 @@ function MyApp({ Component, pageProps }) {
         />
       </Head>
     <StateContext>
-        <GlobalStyles />
+        
       <Component {...pageProps} />
     </StateContext></>
   );

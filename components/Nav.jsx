@@ -3,14 +3,11 @@ import { auth } from "../backend/firebase.js";
 import { signOut } from "firebase/auth";
 import { useStateContext } from "../context/StateContext";
 
-
 const myStyle = {
   fontFamily: "Recursive Sans Linear Light, sans-serif",
   margin: "5px",
   //textAlign: "center",
 };
-
-
 
 const navStyle = {
   padding: "10px",
@@ -65,10 +62,6 @@ const Nav = () => {
 
         <Link href="/favorites" style={myStyle}>
           Favorites
-        </Link>
-
-        <Link href="/clans" style={myStyle}>
-          Clans
         </Link>
 
         {authButtons}
