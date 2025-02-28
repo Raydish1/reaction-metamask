@@ -6,6 +6,7 @@ import styles from "./PromptCard.module.css";
 
 const PromptCard = () => {
   const [text, setText] = useState(""); //Text box input
+  const [underText, setUnderText] = useState("");
   const [rankedData, setRankedData] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const router = useRouter();
@@ -19,8 +20,13 @@ const PromptCard = () => {
       const data = await searchByName(text); //Calls searchPlayer function from api file
       console.log("searched data");
       console.log(data);
-      setRankedData(data.rankedStats);
-      setPlayerData(data.playerStats);
+      if (data) {
+        setUnderText("");
+        setRankedData(data.rankedStats);
+        setPlayerData(data.playerStats);
+      } else {
+        setUnderText("Player must exist and have completed placement matches.");
+      }
     } catch (error) {
       console.error("Error fetching player data: ", error);
     }
@@ -33,7 +39,7 @@ const PromptCard = () => {
   };
 
   const statRedirect = () => {
-    console.log("CLICKED");
+    //console.log("CLICKED");
     //console.log(playerData);
     //console.log(rankedData);
 
@@ -53,12 +59,12 @@ const PromptCard = () => {
       <button onClick={handleSearch} className={styles.button}>
         Search!
       </button>
-      <p>you typed {text}</p>
+      <p>{underText}</p>
       {rankedData && playerData && (
         <div onClick={statRedirect} className={styles.playerCard}>
           <h1>{playerData.name}</h1>
-          <h2>{rankedData.rating}</h2> 
-          <h3>{Math.round(rankedData.wins / rankedData.games * 100)}% W/L</h3>
+          <h2>{rankedData.rating}</h2>
+          <h3>{Math.round((rankedData.wins / rankedData.games) * 100)}% W/L</h3>
           <p>{}</p>
         </div>
       )}

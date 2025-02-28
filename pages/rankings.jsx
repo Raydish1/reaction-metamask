@@ -2,7 +2,6 @@ import { useState } from "react";
 import RootLayout from "./layout";
 import { useEffect } from "react";
 import { getRankings } from "./api/brawlhalla.js";
-
 import styled from "styled-components";
 
 const RankingsContainer = styled.div`
