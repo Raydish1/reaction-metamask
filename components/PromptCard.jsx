@@ -12,7 +12,7 @@ const legendToID = {
   5: "orion",
   6: "lord vraxx",
   14: "ada",
-  11: "sir roland",
+  11: "roland",
   10: "hattori",
   15: "sentinel",
   12: "scarlet",
@@ -86,6 +86,7 @@ const PlayerCard = styled.div`
 const SearchContainer = styled.div`
   display: flex;
   align-items: top;
+  font-family:Quicksand;
 `;
 
 const InputBox1 = styled.input`
@@ -102,7 +103,7 @@ const InputBox2 = styled.input`
   height: 35px;
   width: 600px;
   border: 0px solid #fff;
-  border-bottom: 1px solid black;
+  //border-bottom: 1px solid black;
   outline: none;
   padding-left: 10px;
   padding: 0 15px;
@@ -111,9 +112,9 @@ const InputBox2 = styled.input`
 `;
 
 const Button = styled.button`
-  background-color: black;
-  border: none;
-  color: white;
+  background-color: white;
+  border: 1px solid lightgray;
+  color: black;
   padding: 10px 25px;
   margin-left: 5px;
   height: 40px;
@@ -122,12 +123,20 @@ const Button = styled.button`
   display: inline-block;
   font-size: 16px;
   border-radius: 15px;
+  font-family:Quicksand;
+  box-shadow: rgba(121, 121, 121, 0.24) 0px 2px 5px;
+  transition:0.3s;
+
+  &:hover{
+  cursor:pointer;
+  box-shadow: rgba(121, 121, 121, 0.24) 0px 2px 10px;
+  }
 `;
 
 const Dropdown = styled.div`
   background-color: white;
   border: 1px solid #ccc;
-  width: 600px;
+  width: 630px;
   border-radius: 15px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -149,7 +158,7 @@ const DropdownItem = styled.div`
 `;
 
 const SmallP = styled.div`
-  width: 30px;
+  width: 36px;
   opacity: 60%;
   font-size: 10px;
   margin-right: 5px;
@@ -158,6 +167,16 @@ const SmallP = styled.div`
 
 const WLContainer = styled.div`
   margin-left: auto;
+`;
+
+const Hr = styled.hr`
+
+  border: 1px solid lightgray; /* Customize color and thickness */
+  width: 95%; /* Adjust width */
+  margin: 3px auto; /* Center and add spacing */
+  opacity:40%;
+  
+
 `;
 
 const PromptCard = () => {
@@ -190,19 +209,18 @@ const PromptCard = () => {
             return 0; // No change in order
           }
         });
-        setSearchResults(sortedResults);
+        setSearchResults(sortedResults.slice(0, 5));
 
         //setSearchResults(data);
         //setRankedData(data.rankedStats);
         //setPlayerData(data.playerStats);
-        if (data.length === 1) {
-          handlePlayerSelect(data[0]);
-        }
-      } else {
-        setSearchResults([]);
+        if (data.length === 0) {
+          setSearchResults([]);
         setRankedData(null);
         setPlayerData(null);
         setUnderText("Player must exist and have completed placement matches.");
+        }
+      
       }
     } catch (error) {
       console.error("Error fetching player data: ", error);
@@ -211,14 +229,9 @@ const PromptCard = () => {
 
   const handlePlayerSelect = async (player) => {
     try {
-      const data = await searchPlayer(player.brawlhalla_id);
-      if (data) {
-        setRankedData(data.rankedStats);
-        setPlayerData(data.playerStats);
-        setSearchResults([]);
-      } else {
-        setUnderText("Player data not found.");
-      }
+      router.push(`/stats?id=${player.brawlhalla_id}&legend=${legendToID[player.best_legend]}`);
+      setSearchResults([]);
+      setText("")
     } catch (error) {
       console.error("Error fetching player data: ", error);
     }
@@ -230,19 +243,12 @@ const PromptCard = () => {
     }
   };
 
-  const statRedirect = () => {
-    //console.log("CLICKED");
-    //console.log(playerData);
-    //console.log(rankedData);
-    if (playerData) {
-      router.push(`/stats?id=${playerData.brawlhalla_id}`);
-    }
-  };
+
 
   return (
     <div>
       <SearchContainer>
-        {searchResults.length > 1 ? (
+        {searchResults.length > 0 ? (
           <>
             <Dropdown>
               <InputBox2
@@ -251,14 +257,14 @@ const PromptCard = () => {
                 value={text}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
-              />
+              /><Hr />
 
               {searchResults.map((player) => (
                 <DropdownItem
                   key={player.brawlhalla_id}
                   onClick={() => handlePlayerSelect(player)}
                 >
-                  <SmallP>#{player.rank}</SmallP>
+                  <SmallP>#{player.rank} / {player.rating}</SmallP>
                   <Image
                     src={`/ranks/${player.tier}.webp`}
                     width={30}
@@ -293,16 +299,6 @@ const PromptCard = () => {
             />
             <Button onClick={handleSearch}>Search!</Button>
           </div>
-        )}
-
-        {rankedData && playerData && (
-          <PlayerCard onClick={statRedirect}>
-            <h1>{playerData.name}</h1>
-            <h2>{rankedData.rating}</h2>
-            <h3>
-              {Math.round((rankedData.wins / rankedData.games) * 100)}% W/L
-            </h3>
-          </PlayerCard>
         )}
       </SearchContainer>
       <p>{underText}</p>

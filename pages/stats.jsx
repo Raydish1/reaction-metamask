@@ -5,10 +5,15 @@ import { useRouter } from "next/router";
 import { searchPlayer } from "./api/brawlhalla.js";
 import { searchByName } from "./api/brawlhalla.js";
 import styled from "styled-components";
+import Image from "next/image"
+
+
+
 
 const Stats = () => {
   const router = useRouter();
   const brawlhalla_id = router.query.id;
+
 
   const [rankedData, setRankedData] = useState(null);
   const [playerData, setPlayerData] = useState(null);
@@ -34,6 +39,7 @@ const Stats = () => {
       <PromptCard />
       {playerData && rankedData && (
         <div>
+          <img src={`/splash/Official_Artwork_${router.query.legend}.webp`}/>
           <p>Name: {playerData.name}</p>
           {playerData.clan && <p>Clan: {playerData.clan.clan_name}</p>}
           <p>Elo: {rankedData.rating}</p>

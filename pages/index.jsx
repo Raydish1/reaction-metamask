@@ -20,15 +20,16 @@ const Container = styled.section`
 
 const TextSquare = styled.div`
   position: absolute;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   top: 50%; // Center vertically
   left: 50%; // Center horizontally
   transform: translate(-50%, -50%); // Adjust for centering
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   padding: 20px;
   width: 750px;
-  height: 500px;
+  height: 540px;
   padding-bottom: 100px;
-  border: 2px solid rgb(110, 110, 110);
+  border: 0px solid rgb(110, 110, 110);
   border-radius: 1px; // Optional: Rounded corners
   text-align: center;
 `;
@@ -47,7 +48,7 @@ const Home = () => {
 
         <TextSquare>
           <Image
-            src="/legends/yumiko.png"
+            src="/legends/cross.png"
             width={210}
             height={210}
             alt="bodvar"

@@ -83,9 +83,10 @@ const Nav = () => {
 
       <AuthButtons>
         {user ? (
-          <LogoutButton onClick={() => signOut(auth)}>
+          <StyledLink href="/sign-in" onClick={() => signOut(auth)}>
             <Image src="/logout.png" alt="Log Out" width={25} height={25} />
-          </LogoutButton>
+            Log Out
+          </StyledLink>
         ) : (
           <>
             <StyledLink href="/sign-in">
