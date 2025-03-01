@@ -1,4 +1,4 @@
-import { StateContext } from '../context/StateContext.js' // Adjust path if needed
+import { StateContext } from '../context/StateContext.js' 
 import Head from "next/head";
 import React from "react";
 

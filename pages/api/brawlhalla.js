@@ -16,12 +16,7 @@ export async function searchByName(name) {
     }
       const stats = await response.json();
       console.log(stats)
-      if (stats[0]) {
-        return searchPlayer(stats[0].brawlhalla_id);
-      }
-      else {
-        return null
-      }
+      return stats;
       
       const brawlhalla_id = stats.brawlhalla_id;
       // console.log("before")

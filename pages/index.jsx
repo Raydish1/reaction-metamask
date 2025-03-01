@@ -25,7 +25,7 @@ const TextSquare = styled.div`
   transform: translate(-50%, -50%); // Adjust for centering
   background-color: white;
   padding: 20px;
-  width: 700px;
+  width: 750px;
   height: 500px;
   padding-bottom: 100px;
   border: 2px solid rgb(110, 110, 110);

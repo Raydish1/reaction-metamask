@@ -110,6 +110,7 @@ export default function Rankings() {
           SEA
         </RankingButton>
       </CenteredDiv>
+
       {displayedRankings ? (
         <RankingsContainer>
           <LeaderboardWrapper>
@@ -129,6 +130,7 @@ export default function Rankings() {
                 <span>{index + 1}</span>
                 <span>{player.tier}</span>
                 <span>{player.region}</span>
+
                 {mode === "1v1" ? (
                   <span>{player.name}</span>
                 ) : (

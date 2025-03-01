@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth } from '../../backend/firebase';
+import { auth } from "../../backend/firebase";
 const { default: RootLayout } = require("../layout");
 
-// Signup Component
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,7 +48,5 @@ const Signup = () => {
     </RootLayout>
   );
 };
-
-// App Component (Ensure Context Provider Wraps Everything)
 
 export default Signup;

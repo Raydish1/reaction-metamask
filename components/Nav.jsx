@@ -12,7 +12,7 @@ const StyledNav = styled.nav`
   padding: 10px 20px;
   background-color: white;
   border-bottom: 2px solid #ddd;
-  font-family:Quicksand;
+  font-family: Quicksand;
 `;
 
 const NavLinks = styled.div`
@@ -29,7 +29,6 @@ const StyledLink = styled(Link)`
   font-weight: bold;
   font-size: 16px;
   transition: 0.3s;
-  
 
   &:hover {
     opacity: 0.7;
@@ -41,16 +40,14 @@ const AuthButtons = styled.div`
   align-items: center;
   gap: 15px;
   transition: 0.3s;
-  
 `;
 
 const LogoutButton = styled.button`
   background: none;
-  
+
   padding: 8px 12px;
   cursor: pointer;
   font-size: 14px;
-  
 
   &:hover {
     opacity: 0.7;
@@ -62,7 +59,6 @@ const Nav = () => {
 
   return (
     <StyledNav>
- 
       <NavLinks>
         <StyledLink href="/">
           <Image src="/home.png" alt="Home" width={25} height={25} />
@@ -85,13 +81,17 @@ const Nav = () => {
         </StyledLink>
       </NavLinks>
 
-
       <AuthButtons>
         {user ? (
-          <LogoutButton onClick={() => signOut(auth)}><Image src="/logout.png" alt="Log Out" width={25} height={25} /></LogoutButton>
+          <LogoutButton onClick={() => signOut(auth)}>
+            <Image src="/logout.png" alt="Log Out" width={25} height={25} />
+          </LogoutButton>
         ) : (
           <>
-            <StyledLink href="/sign-in"><Image src="/login.png" alt="Log In" width={25} height={25} />Log In</StyledLink>
+            <StyledLink href="/sign-in">
+              <Image src="/login.png" alt="Log In" width={25} height={25} />
+              Log In
+            </StyledLink>
             <StyledLink href="/sign-up">Sign Up</StyledLink>
           </>
         )}

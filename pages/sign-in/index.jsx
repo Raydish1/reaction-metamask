@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "../../backend/firebase";
 import { useRouter } from "next/navigation";
@@ -14,14 +14,14 @@ const Signin = () => {
   const router = useRouter();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevents page reload
+    e.preventDefault(); //prevents page reload
 
     try {
       const res = await signInWithEmailAndPassword(email, password);
       setEmail("");
       setPassword("");
       if (res?.user) {
-        setUser(res.user); // Update global user state
+        setUser(res.user); //updates global user state
       }
     } catch (err) {
       console.error("Sign-in error:", err);

@@ -2,7 +2,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import { ServerStyleSheet } from "styled-components";
 
 export default class MyDocument extends Document { //I found this solution to hydration error, styles wouldn't load properly on reload
-  static async getInitialProps(ctx) {
+  static async getInitialProps(ctx) {              //not really sure how it works though
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
 
