@@ -6,9 +6,21 @@ import { searchPlayer } from "./api/brawlhalla.js";
 import { searchByName } from "./api/brawlhalla.js";
 import styled from "styled-components";
 import Image from "next/image"
+import FavoriteButton from "../components/FavoriteButton";
 
 
+const ImageContainer = styled.div`
+  width: 30%; 
+  height: 90%; 
+  border: 1px solid #ccc; 
+  overflow: hidden; 
+`;
 
+const StyledImage = styled.img`
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+`;
 
 const Stats = () => {
   const router = useRouter();
@@ -32,14 +44,21 @@ const Stats = () => {
     };
 
     fetchData();
-  }, [router.query]); // Refetch when ID changes
+  }, [router.query]); // refetch when ID changes
 
   return (
     <RootLayout>
       <PromptCard />
       {playerData && rankedData && (
         <div>
-          <img src={`/splash/Official_Artwork_${router.query.legend}.webp`}/>
+          <ImageContainer>
+          <StyledImage src={`/splash/Official_Artwork_${router.query.legend}.webp`}/>
+          </ImageContainer>
+          <FavoriteButton
+            rankedData={rankedData}
+            playerId={playerData.brawlhalla_id}
+            legend={router.query.legend}
+          />
           <p>Name: {playerData.name}</p>
           {playerData.clan && <p>Clan: {playerData.clan.clan_name}</p>}
           <p>Elo: {rankedData.rating}</p>

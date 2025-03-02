@@ -39,7 +39,7 @@ const Home = () => {
       <Container>
         <Image
           src="/bars.png"
-          width={1910}
+          width={1930}
           height={400}
           alt="Background Bars"
           quality={100}

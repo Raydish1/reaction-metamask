@@ -3,6 +3,7 @@ import { searchPlayer } from "../pages/api/brawlhalla.js";
 import { searchByName } from "../pages/api/brawlhalla.js";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import FavoriteButton from ".//FavoriteButton";
 
 import styled from "styled-components";
 
@@ -10,7 +11,7 @@ const legendToID = {
   3: "bodvar",
   4: "cassidy",
   5: "orion",
-  6: "lord vraxx",
+  6: "vraxx",
   14: "ada",
   11: "roland",
   10: "hattori",
@@ -209,11 +210,11 @@ const PromptCard = () => {
             return 0; // No change in order
           }
         });
-        setSearchResults(sortedResults.slice(0, 5));
+        setSearchResults(sortedResults.slice(0, 5)); }
 
         //setSearchResults(data);
         //setRankedData(data.rankedStats);
-        //setPlayerData(data.playerStats);
+        //setPlayerData(data.playerStats);}
         if (data.length === 0) {
           setSearchResults([]);
         setRankedData(null);
@@ -222,7 +223,7 @@ const PromptCard = () => {
         }
       
       }
-    } catch (error) {
+     catch (error) {
       console.error("Error fetching player data: ", error);
     }
   };
@@ -283,6 +284,12 @@ const PromptCard = () => {
                   <WLContainer>
                     W/L: {player.wins}-{player.games - player.wins}
                   </WLContainer>
+                  <FavoriteButton
+            rankedData={player}
+            playerId={player.brawlhalla_id}
+            legend={legendToID[player.best_legend]}
+            onClick={(e) => e.stopPropagation()}
+          />
                 </DropdownItem>
               ))}
             </Dropdown>
