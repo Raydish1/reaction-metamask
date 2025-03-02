@@ -11,6 +11,7 @@ const RankingsContainer = styled.div`
   align-items: center;
   font-size: 125%;
   font-family: "Quicksand", sans-serif;
+  
 `;
 
 const LeaderboardWrapper = styled.div`
@@ -62,7 +63,17 @@ const CenteredDiv = styled.div`
 `;
 const Header = styled.h1`
   font-family: "Quicksand", sans-serif;
-  font-size: 40px;
+  font-size: 100px;
+  margin:0px;
+  padding:0px;
+  margin-bottom:30px;
+  padding-top:20px;
+  text-align: center;
+`;
+
+const Container = styled.div`
+  background-image: url('/triangle-background.png')
+  
 `;
 export default function Rankings() {
   const [displayedRankings, setDisplayedRankings] = useState(null);
@@ -84,6 +95,7 @@ export default function Rankings() {
   }, [mode, region]);
   return (
     <RootLayout>
+      <Container>
       <Header>Rankings</Header>
       <CenteredDiv>
         <RankingButton onClick={() => handleModeClick("1v1")}>
@@ -149,6 +161,7 @@ export default function Rankings() {
       ) : (
         <p>Loading...</p>
       )}
+      </Container>
     </RootLayout>
   );
 }

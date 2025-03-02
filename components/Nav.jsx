@@ -11,7 +11,7 @@ const StyledNav = styled.nav`
   align-items: center;
   padding: 10px 20px;
   background-color: white;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #666;
   font-family: Quicksand;
 `;
 

@@ -27,7 +27,7 @@ const StyledButton = styled.div`
 `;
 
 const FavoriteButton = ({ rankedData, playerId, legend }) => {
-  const { user } = useStateContext();
+  const  {user}= useStateContext();
   const [isFavorited, setIsFavorited] = useState(false);
   const db = getFirestore(app);
 
@@ -46,7 +46,7 @@ const FavoriteButton = ({ rankedData, playerId, legend }) => {
   }, [user, playerId, db]);
 
   const handleFavorite = async () => {
-    if (user && rankedData && playerId && legend) {
+    if (user && playerId) {
       const favoriteDocRef = doc(db, "favorites", `${user.uid}_${playerId}`);
       if (isFavorited) {
         await deleteDoc(favoriteDocRef);
@@ -61,6 +61,7 @@ const FavoriteButton = ({ rankedData, playerId, legend }) => {
           bestLegend: legend,
           wins: rankedData.wins,
           games: rankedData.games,
+          rankedData: rankedData,
         });
         setIsFavorited(true);
       }
@@ -72,7 +73,7 @@ const FavoriteButton = ({ rankedData, playerId, legend }) => {
   return (
     <StyledButton
       isFavorited={isFavorited}
-      disabled={!user || !rankedData || !playerId || !legend}
+      disabled={!user}
       onClick={(e) => {
         handleFavorite(e); 
         e.stopPropagation(); // doesnt redirect to stats on click in dropdown
