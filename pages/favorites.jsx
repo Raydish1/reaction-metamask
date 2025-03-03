@@ -2,11 +2,12 @@ import RootLayout from "./layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useStateContext } from "../context/StateContext.js";
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { app } from "../backend/firebase"; 
 import styled from "styled-components";
 import FavoriteButton from "../components/FavoriteButton";
 import Image from "next/image"
+import { db } from "../backend/firebase";
 
 
 const SmallP = styled.div`
@@ -23,7 +24,8 @@ const WLContainer = styled.div`
 
 const Container = styled.div`
 background-image: url('/triangle-background.png');
-  min-height: 100vh; 
+  max-height: 100vh; 
+  min-height: 95vh; 
   overflow-y: hidden; 
   background-size: cover; 
   background-repeat: no-repeat; 
@@ -39,8 +41,9 @@ const Favorites = () => {
   const { user } = useStateContext();
   const router = useRouter();
   const [favorites, setFavorites] = useState([]);
-  const db = getFirestore(app);
+  
 
+  const [loading, setLoading] = useState(true);
   // redirect unauthenticated users
   useEffect(() => {
     if (user === null) {
@@ -60,11 +63,15 @@ const Favorites = () => {
           ...doc.data(),
         }));
         setFavorites(fetchedFavorites);
-      }
+      } setLoading(false);
     };
 
     fetchFavorites();
   }, [user, db]);
+
+  if (loading) {
+    return <div>Loading...</div>; 
+  }
 
   if (user === undefined) return <p>Loading...</p>; // show loading state while checking user
 

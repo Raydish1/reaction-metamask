@@ -72,7 +72,8 @@ const Header = styled.h1`
 `;
 
 const Container = styled.div`
-  background-image: url('/triangle-background.png')
+  background-image: url('/triangle-background.png');
+  height: 100vh;
   
 `;
 export default function Rankings() {

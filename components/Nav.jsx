@@ -13,6 +13,7 @@ const StyledNav = styled.nav`
   background-color: white;
   border-bottom: 2px solid #666;
   font-family: Quicksand;
+  z-index: 9;
 `;
 
 const NavLinks = styled.div`
@@ -96,9 +97,9 @@ const Nav = () => {
           <>
             <StyledLink href="/sign-in">
               <Image src="/login.png" alt="Log In" width={25} height={25} />
-              Log In
+              Log In / Sign up
             </StyledLink>
-            <StyledLink href="/sign-up">Sign Up</StyledLink>
+            
           </>
         )}
       </AuthButtons>

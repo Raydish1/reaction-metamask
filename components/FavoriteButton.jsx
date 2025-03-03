@@ -7,9 +7,10 @@
 import styled from "styled-components";
 import { useStateContext } from "../context/StateContext";
 import { useState, useEffect } from "react";
-import { doc, getFirestore, setDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { app } from "../backend/firebase";
 import Image from "next/image";
+import { db } from "../backend/firebase";
 
 const StyledButton = styled.div`
   
@@ -29,7 +30,8 @@ const StyledButton = styled.div`
 const FavoriteButton = ({ rankedData, playerId, legend }) => {
   const  {user}= useStateContext();
   const [isFavorited, setIsFavorited] = useState(false);
-  const db = getFirestore(app);
+  
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkFavorite = async () => {
@@ -40,6 +42,7 @@ const FavoriteButton = ({ rankedData, playerId, legend }) => {
       } else {
         setIsFavorited(false);
       }
+      setLoading(false);
     };
 
     checkFavorite();
