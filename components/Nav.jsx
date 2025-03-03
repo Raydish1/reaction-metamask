@@ -79,8 +79,13 @@ const Nav = () => {
           <Image src="/favorites.png" alt="Favorites" width={25} height={25} />
           Favorites
         </StyledLink>
-      </NavLinks>
+      
 
+      <StyledLink href="/tournament">
+        <Image src="/trophy.svg" alt="Tournament" width={25} height={25} />
+        Tournament
+        </StyledLink>
+    </NavLinks>
       <AuthButtons>
         {user ? (
           <StyledLink href="/sign-in" onClick={() => signOut(auth)}>

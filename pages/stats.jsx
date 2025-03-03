@@ -9,8 +9,8 @@ import Image from "next/image";
 import FavoriteButton from "../components/FavoriteButton";
 
 const ImageContainer = styled.div`
-  width: 30%;
-  height: 90%;
+  width: 500px;
+  height: 500px;
   border: 1px solid #ccc;
   overflow: hidden;
 `;

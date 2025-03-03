@@ -30,6 +30,11 @@ background-image: url('/triangle-background.png');
   text-align:center;
 `;
 
+const Header = styled.h2`
+  font-size:50px;
+`;
+
+
 const Favorites = () => {
   const { user } = useStateContext();
   const router = useRouter();
@@ -67,7 +72,7 @@ const Favorites = () => {
     <RootLayout>
       <Container>
       <FavoritesContainer>
-        <h2>Your Favorites</h2>
+        <Header>Your Favorites</Header>
         {favorites.length > 0 ? (
           favorites.map((favorite) => (
             
