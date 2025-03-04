@@ -11,11 +11,11 @@ const Container = styled.div`
   flex-direction: column;
   align-items: flex-start;
   padding: 0px;
-  font-family: 'Quicksand', sans-serif;
+  font-family: "Quicksand", sans-serif;
   width: 100%;
   //height: 100vh;
 
-  background-image: url('/triangle-background.png');
+  background-image: url("/triangle-background.png");
   max-height: 100vh;
   min-height: 95vh;
   overflow-y: hidden;
@@ -30,7 +30,7 @@ const ContentWrapper = styled.div`
   gap: 20px;
   width: 100%;
   height: 100%;
-  margin-top:20px;
+  margin-top: 20px;
 `;
 
 const LeftColumn = styled.div`
@@ -39,7 +39,7 @@ const LeftColumn = styled.div`
   align-items: center;
   height: 100%;
   width: 35vw;
-  padding-left:20px;
+  padding-left: 20px;
 `;
 
 const Header = styled.div`
@@ -57,8 +57,8 @@ const Header = styled.div`
 `;
 
 const H3 = styled.h2`
-margin-top:2px;
-  margin-bottom:5px;
+  margin-top: 2px;
+  margin-bottom: 5px;
 `;
 
 const ImageContainer = styled.div`
@@ -76,7 +76,7 @@ const StatsContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   height: 86vh;
   width: 50vw;
-  background:white;
+  background: white;
   display: flex;
   flex-direction: column;
 `;
@@ -104,14 +104,13 @@ const Tab = styled.button`
   font-size: 16px;
   color: #333;
   transition: border-bottom 0.3s ease;
-  font-family:Quicksand;
+  font-family: Quicksand;
 `;
 
 const TabContent = styled.div`
   padding: 20px 0;
   width: 100%;
-  overflow-y: auto; // Add scroll here
-  
+  overflow-y: auto;
 `;
 
 const H2 = styled.h2`
@@ -122,7 +121,7 @@ const H2 = styled.h2`
 
 const StatItem = styled.div`
   margin-bottom: 0px;
-  margin-top:10px;
+  margin-top: 10px;
   font-size: 16px;
   color: #000;
 `;
@@ -140,7 +139,7 @@ const OverviewStats = styled.div`
 
 const RatingText = styled.div`
   margin-left: 20px;
-  margin-top:10px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
 `;
@@ -148,7 +147,7 @@ const RatingText = styled.div`
 const CurrentRating = styled.span`
   font-size: 1.5em;
   font-weight: bold;
-  margin-bottom:5px;
+  margin-bottom: 5px;
 `;
 
 const PeakRating = styled.span`
@@ -161,10 +160,11 @@ const PromptContainer = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  background:white;
-  padding:50px;
+  background: white;
+  padding: 50px;
+  width: 90%;
+  max-width: 50vw;
 `;
-
 const PromptText = styled.h2`
   margin-bottom: 20px;
   font-size: 1.8em;
@@ -184,7 +184,8 @@ const Stats = () => {
         try {
           const data = await searchPlayer(brawlhalla_id);
           setPlayerData(data.playerStats);
-          if (data.rankedStats && data.rankedStats["2v2"]) { //sorting teams by rating
+          if (data.rankedStats && data.rankedStats["2v2"]) {
+            //sorting teams by rating
             data.rankedStats["2v2"].sort((a, b) => b.rating - a.rating);
           }
           setRankedData(data.rankedStats);
@@ -269,105 +270,109 @@ const Stats = () => {
                       />
                       <RatingText>
                         <CurrentRating>ELO: {rankedData.rating} </CurrentRating>
-                        <PeakRating>
-                          Peak: {rankedData.peak_rating}
-                        </PeakRating>
+                        <PeakRating>Peak: {rankedData.peak_rating}</PeakRating>
                         <StatItem>
-                          W/L: {rankedData.wins}-{rankedData.games-rankedData.wins}
+                          W/L: {rankedData.wins}-
+                          {rankedData.games - rankedData.wins}
                         </StatItem>
                         <StatItem>Region: {rankedData.region}</StatItem>
                       </RatingText>
                     </OverviewStats>
-                    
-                      <div>
+
+                    <div>
                       <H2>Best 2v2 Team</H2>
                       {rankedData["2v2"].length > 0 ? (
-                      <OverviewStats>
-                      <TierImage
-  src={`/Banner_Rank_${getTierImage(rankedData["2v2"][0].tier)}.webp`}
-  alt={`${rankedData["2v2"][0].tier} Banner`}
-/>
-                      <RatingText>
-                      <H3>{rankedData["2v2"][0].teamname}</H3>
-                      <CurrentRating>ELO: {rankedData["2v2"][0].rating}</CurrentRating>
-                      <PeakRating>
-                      Peak: {rankedData["2v2"][0].peak_rating}
-                      </PeakRating>
-                      <StatItem>
-                      W/L: {rankedData["2v2"][0].wins}-
-                      {rankedData["2v2"][0].games - rankedData["2v2"][0].wins}
-                      </StatItem>
-                      <StatItem>Region: {rankedData.region}</StatItem>
-                      </RatingText>
-                      </OverviewStats>
+                        <OverviewStats>
+                          <TierImage
+                            src={`/Banner_Rank_${getTierImage(
+                              rankedData["2v2"][0].tier
+                            )}.webp`}
+                            alt={`${rankedData["2v2"][0].tier} Banner`}
+                          />
+                          <RatingText>
+                            <H3>{rankedData["2v2"][0].teamname}</H3>
+                            <CurrentRating>
+                              ELO: {rankedData["2v2"][0].rating}
+                            </CurrentRating>
+                            <PeakRating>
+                              Peak: {rankedData["2v2"][0].peak_rating}
+                            </PeakRating>
+                            <StatItem>
+                              W/L: {rankedData["2v2"][0].wins}-
+                              {rankedData["2v2"][0].games -
+                                rankedData["2v2"][0].wins}
+                            </StatItem>
+                            <StatItem>Region: {rankedData.region}</StatItem>
+                          </RatingText>
+                        </OverviewStats>
                       ) : (
-                      <StatItem>Player has no 2v2 teams.</StatItem>
+                        <StatItem>Player has no 2v2 teams.</StatItem>
                       )}
-                      </div>
-                      <div>
+                    </div>
+                    <div>
                       <H2>Clan</H2>
                       {playerData.clan ? (
                         <StatItem>{playerData.clan.clan_name}</StatItem>
                       ) : (
-                      <StatItem>Player is not in a clan.</StatItem>
+                        <StatItem>Player is not in a clan.</StatItem>
                       )}
-                      </div>
-                      </div>
-                      )}
-                      {activeTab === "2v2" && (
-                      <div>
-                      {rankedData["2v2"].length > 0 ? (
+                    </div>
+                  </div>
+                )}
+                {activeTab === "2v2" && (
+                  <div>
+                    {rankedData["2v2"].length > 0 ? (
                       rankedData["2v2"].map((team, index) => (
                         <div key={index}>
-                        <StatItem>Team: {team.teamname}</StatItem>
-                        <StatItem>Rating: {team.rating}</StatItem>
-                        <StatItem>Peak Rating: {team.peak_rating}</StatItem>
-                        <StatItem>Tier: {team.tier}</StatItem>
-                        <StatItem>
-                          W/L: {team.wins} - {team.games - team.wins}
-                        </StatItem>
-                        <hr />
-                      </div>
+                          <StatItem>Team: {team.teamname}</StatItem>
+                          <StatItem>Rating: {team.rating}</StatItem>
+                          <StatItem>Peak Rating: {team.peak_rating}</StatItem>
+                          <StatItem>Tier: {team.tier}</StatItem>
+                          <StatItem>
+                            W/L: {team.wins} - {team.games - team.wins}
+                          </StatItem>
+                          <hr />
+                        </div>
                       ))
-                      ) : (
+                    ) : (
                       <StatItem>Player has no 2v2 teams.</StatItem>
-                      )}
-                      </div>
-                      )}
-                      {activeTab === "Legends" && (
-                      <div>
-                      {playerData.legends
+                    )}
+                  </div>
+                )}
+                {activeTab === "Legends" && (
+                  <div>
+                    {playerData.legends
                       .sort((a, b) => b.xp - a.xp)
                       .map((legend, index) => (
-                      <div key={index}>
-                      <StatItem>Legend: {legend.legend_name_key}</StatItem>
-                      <StatItem>
-                      Level: {legend.level}, XP: {legend.xp}
-                      </StatItem>
-                      <StatItem>
-                      Damage Dealt: {legend.damagedealt}, Damage Taken:{" "}
-                      {legend.damagetaken}
-                      </StatItem>
-                      <StatItem>
-                      KOs: {legend.kos}, Falls: {legend.falls}
-                      </StatItem>
-                      <hr />
-                      </div>
+                        <div key={index}>
+                          <StatItem>Legend: {legend.legend_name_key}</StatItem>
+                          <StatItem>
+                            Level: {legend.level}, XP: {legend.xp}
+                          </StatItem>
+                          <StatItem>
+                            Damage Dealt: {legend.damagedealt}, Damage Taken:{" "}
+                            {legend.damagetaken}
+                          </StatItem>
+                          <StatItem>
+                            KOs: {legend.kos}, Falls: {legend.falls}
+                          </StatItem>
+                          <hr />
+                        </div>
                       ))}
-                      </div>
-                      )}
-                      </TabContent>
-                      </StatsContainer>
-                      </ContentWrapper>
-                      ) : (
-                      <PromptContainer>
-                      <PromptText>Search a player to see their stats!</PromptText>
-                      <PromptCard />
-                      </PromptContainer>
-                      )}
-                      </Container>
-                      </RootLayout>
-                      );
-                      };
-                      
-                      export default Stats;
+                  </div>
+                )}
+              </TabContent>
+            </StatsContainer>
+          </ContentWrapper>
+        ) : (
+          <PromptContainer>
+            <PromptText>Search a player to see their stats!</PromptText>
+            <PromptCard />
+          </PromptContainer>
+        )}
+      </Container>
+    </RootLayout>
+  );
+};
+
+export default Stats;

@@ -16,21 +16,21 @@ const RankingsContainer = styled.div`
   align-items: center;
   font-size: 125%;
   font-family: "Quicksand", sans-serif;
-  padding-bottom:30px;
-  
+  padding-bottom: 30px;
 `;
 
 const LeaderboardWrapper = styled.div`
   border: 3px solid gray;
   border-radius: 10px;
   overflow: hidden; /*corners were glitched visually without this*/
+  max-width: 90%;
 `;
 
 const RankingHeader = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 2.5fr 1fr 2fr 1fr 1fr;
   padding: 20px;
-  width: 1000px;
+  width: 100%;
   font-weight: bold;
   background: #eee;
   color: black;
@@ -40,21 +40,22 @@ const RankingRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 2.5fr 1fr 2fr 1fr 1fr;
   padding: 20px;
-  width: 1000px;
+  width: 100%;
   background: #fff;
   color: black;
 
-  &:nth-child(even) { //every other row is shaded
+  &:nth-child(even) {
+    //every other row is shaded
     background: rgb(226, 226, 226);
   }
 
-  & > span:nth-child(4) { /* adding padding to the 4th span, Name column */
-    padding-right: 15px; 
+  & > span:nth-child(4) {
+    /* adding padding to the 4th span, Name column */
+    padding-right: 15px;
   }
 `;
 
 const RankingButton = styled.button`
-  
   border-radius: 7px;
   width: 70px;
   height: 40px;
@@ -64,8 +65,8 @@ const RankingButton = styled.button`
   align-items: center;
   justify-content: center;
   margin: 5px;
-  border: ${(props) => (props.selected ? "2px solid black" : "2px solid gray")}; 
-  transition:0.2s;
+  border: ${(props) => (props.selected ? "2px solid black" : "2px solid gray")};
+  transition: 0.2s;
 `;
 const CenteredDiv = styled.div`
   display: flex;
@@ -76,17 +77,17 @@ const CenteredDiv = styled.div`
 const Header = styled.h1`
   font-family: "Quicksand", sans-serif;
   font-size: 100px;
-  margin:0px;
-  padding:0px;
-  margin-bottom:30px;
-  padding-top:20px;
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 30px;
+  padding-top: 20px;
   text-align: center;
 `;
 
 const Container = styled.div`
-  background-image: url('/triangle-background.png');
-  height:110%;
-  
+  background-image: url("/triangle-background.png");
+  height: 110%;
+  width: auto;
 `;
 export default function Rankings() {
   const [displayedRankings, setDisplayedRankings] = useState(null);
@@ -109,92 +110,92 @@ export default function Rankings() {
   return (
     <RootLayout>
       <Container>
-      <Header>Rankings</Header>
-      <CenteredDiv>
-  <RankingButton
-    onClick={() => handleModeClick("1v1")}
-    selected={mode === "1v1"} // pass true if current mode is 1v1
-  >
-    1v1
-  </RankingButton>
-  <RankingButton
-    onClick={() => handleModeClick("2v2")}
-    selected={mode === "2v2"} 
-  >
-    2v2
-  </RankingButton>
-</CenteredDiv>
-<CenteredDiv>
-  <RankingButton
-    onClick={() => handleRegionClick("us-e")}
-    selected={region === "us-e"} // pass true if current region is us-e
-  >
-    US-E
-  </RankingButton>
-  <RankingButton
-    onClick={() => handleRegionClick("eu")}
-    selected={region === "eu"} 
-  >
-    EU
-  </RankingButton>
-  <RankingButton
-    onClick={() => handleRegionClick("brz")}
-    selected={region === "brz"} 
-  >
-    BRZ
-  </RankingButton>
-  <RankingButton
-    onClick={() => handleRegionClick("us-w")}
-    selected={region === "us-w"} 
-  >
-    US-W
-  </RankingButton>
-  <RankingButton
-    onClick={() => handleRegionClick("sea")}
-    selected={region === "sea"} 
-  >
-    SEA
-  </RankingButton>
-</CenteredDiv>
+        <Header>Rankings</Header>
+        <CenteredDiv>
+          <RankingButton
+            onClick={() => handleModeClick("1v1")}
+            selected={mode === "1v1"} // pass true if current mode is 1v1
+          >
+            1v1
+          </RankingButton>
+          <RankingButton
+            onClick={() => handleModeClick("2v2")}
+            selected={mode === "2v2"}
+          >
+            2v2
+          </RankingButton>
+        </CenteredDiv>
+        <CenteredDiv>
+          <RankingButton
+            onClick={() => handleRegionClick("us-e")}
+            selected={region === "us-e"} // pass true if current region is us-e
+          >
+            US-E
+          </RankingButton>
+          <RankingButton
+            onClick={() => handleRegionClick("eu")}
+            selected={region === "eu"}
+          >
+            EU
+          </RankingButton>
+          <RankingButton
+            onClick={() => handleRegionClick("brz")}
+            selected={region === "brz"}
+          >
+            BRZ
+          </RankingButton>
+          <RankingButton
+            onClick={() => handleRegionClick("us-w")}
+            selected={region === "us-w"}
+          >
+            US-W
+          </RankingButton>
+          <RankingButton
+            onClick={() => handleRegionClick("sea")}
+            selected={region === "sea"}
+          >
+            SEA
+          </RankingButton>
+        </CenteredDiv>
 
-      {displayedRankings ? (
-        <RankingsContainer>
-          <LeaderboardWrapper>
-            <RankingHeader>
-              <span>Rank</span>
-              <span>Tier</span>
-              <span>Region</span>
-              <span>Name</span>
-              <span>Games</span>
-              <span>W/L</span>
-              <span>Winrate</span>
-              <span>Elo</span>
-            </RankingHeader>
+        {displayedRankings ? (
+          <RankingsContainer>
+            <LeaderboardWrapper>
+              <RankingHeader>
+                <span>Rank</span>
+                <span>Tier</span>
+                <span>Region</span>
+                <span>Name</span>
+                <span>Games</span>
+                <span>W/L</span>
+                <span>Winrate</span>
+                <span>Elo</span>
+              </RankingHeader>
 
-            {displayedRankings.map((player, index) => (
-              <RankingRow key={player.id}>
-                <span>{index + 1}</span>
-                <span>{player.tier}</span>
-                <span>{player.region}</span>
+              {displayedRankings.map((player, index) => (
+                <RankingRow key={player.id}>
+                  <span>{index + 1}</span>
+                  <span>{player.tier}</span>
+                  <span>{player.region}</span>
 
-                {mode === "1v1" ? (
-                  <span>{player.name}</span>
-                ) : (
-                  <span>{player.teamname}</span>
-                )}
-                <span>{player.games}</span>
-                <span>
-                  {player.wins}W / {player.games - player.wins}L
-                </span>
-                <span>{Math.round((player.wins / player.games) * 100)}%</span>
-                <span>{player.rating}</span>
-              </RankingRow>
-            ))}
-          </LeaderboardWrapper>
-        </RankingsContainer>
-      ) : (
-        <p>Loading...</p>
-      )}
+                  {mode === "1v1" ? (
+                    <span>{player.name}</span>
+                  ) : (
+                    <span>{player.teamname}</span>
+                  )}
+                  <span>{player.games}</span>
+                  <span>
+                    {player.wins}W / {player.games - player.wins}L
+                  </span>
+                  <span>{Math.round((player.wins / player.games) * 100)}%</span>
+                  <span>{player.rating}</span>
+                </RankingRow>
+              ))}
+            </LeaderboardWrapper>
+          </RankingsContainer>
+        ) : (
+          <p>Loading...</p>
+        )}
       </Container>
     </RootLayout>
   );

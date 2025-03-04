@@ -76,25 +76,13 @@ const legendToID = {
   67: "priya",
 };
 
-const PlayerCard = styled.div`
-  border: 1px solid black;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-  width: 300px;
-  height: 200px;
-  cursor: pointer;
-`;
-
-const SearchContainer = styled.div`
+const Container = styled.div`
   display: flex;
-  align-items: top;
-  font-family:Quicksand;
 `;
 
 const InputBox1 = styled.input`
   height: 35px;
-  width: 600px;
+  width: 100%;
   border: 1px solid #ccc;
   border-radius: 15px;
   padding: 0 15px;
@@ -104,7 +92,7 @@ const InputBox1 = styled.input`
 
 const InputBox2 = styled.input`
   height: 35px;
-  width: 600px;
+  width: 100%;
   border: 0px solid #fff;
   //border-bottom: 1px solid black;
   outline: none;
@@ -125,21 +113,22 @@ const Button = styled.button`
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  border-radius: 15px;
-  font-family:Quicksand;
-  box-shadow: rgba(121, 121, 121, 0.24) 0px 2px 5px;
-  transition:0.3s;
 
-  &:hover{
-  cursor:pointer;
-  box-shadow: rgba(121, 121, 121, 0.24) 0px 2px 10px;
+  border-radius: 15px;
+  font-family: Quicksand;
+  box-shadow: rgba(121, 121, 121, 0.24) 0px 2px 5px;
+  transition: 0.3s;
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: rgba(121, 121, 121, 0.24) 0px 2px 10px;
   }
 `;
 
 const Dropdown = styled.div`
   background-color: white;
   border: 1px solid #ccc;
-  width: 630px;
+  width: 80%;
   border-radius: 15px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -173,13 +162,10 @@ const WLContainer = styled.div`
 `;
 
 const Hr = styled.hr`
-
-  border: 1px solid lightgray; 
-  width: 95%; 
-  margin: 3px auto; 
-  opacity:40%;
-  
-
+  border: 1px solid lightgray;
+  width: 95%;
+  margin: 3px auto;
+  opacity: 40%;
 `;
 
 const PromptCard = () => {
@@ -212,29 +198,32 @@ const PromptCard = () => {
             return 0; // No change in order
           }
         });
-        setSearchResults(sortedResults.slice(0, 5)); }
+        setSearchResults(sortedResults.slice(0, 5));
+      }
 
-        //setSearchResults(data);
-        //setRankedData(data.rankedStats);
-        //setPlayerData(data.playerStats);}
-        if (data.length === 0) {
-          setSearchResults([]);
+      //setSearchResults(data);
+      //setRankedData(data.rankedStats);
+      //setPlayerData(data.playerStats);}
+      if (data.length === 0) {
+        setSearchResults([]);
         setRankedData(null);
         setPlayerData(null);
         setUnderText("Player must exist and have completed placement matches.");
-        }
-      
       }
-     catch (error) {
+    } catch (error) {
       console.error("Error fetching player data: ", error);
     }
   };
 
   const handlePlayerSelect = async (player) => {
     try {
-      router.push(`/stats?id=${player.brawlhalla_id}&legend=${legendToID[player.best_legend]}`);
+      router.push(
+        `/stats?id=${player.brawlhalla_id}&legend=${
+          legendToID[player.best_legend]
+        }`
+      );
       setSearchResults([]);
-      setText("")
+      setText("");
     } catch (error) {
       console.error("Error fetching player data: ", error);
     }
@@ -246,72 +235,72 @@ const PromptCard = () => {
     }
   };
 
-
-
   return (
-    <div>
-      <SearchContainer>
-        {searchResults.length > 0 ? (
-          <>
-            <Dropdown>
-              <InputBox2
-                type="text"
-                placeholder="Search Player..."
-                value={text}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-              /><Hr />
-
-              {searchResults.map((player) => (
-                <DropdownItem
-                  key={player.brawlhalla_id}
-                  onClick={() => handlePlayerSelect(player)}
-                >
-                  <SmallP>#{player.rank} / {player.rating}</SmallP>
-                  <Image
-                    src={`/ranks/${player.tier}.webp`}
-                    width={30}
-                    height={30}
-                    alt={player.tier}
-                    style={{ marginRight: "10px" }}
-                  />
-                  <Image
-                    src={`/legends/${legendToID[player.best_legend]}.png`}
-                    width={30}
-                    height={30}
-                    alt={legendToID[player.best_legend]}
-                    style={{ marginRight: "10px" }}
-                  />
-                  {player.name}
-                  <WLContainer>
-                    W/L: {player.wins}-{player.games - player.wins}
-                  </WLContainer>
-                  <FavoriteButton
-            rankedData={player}
-            playerId={player.brawlhalla_id}
-            legend={legendToID[player.best_legend]}
-            onClick={(e) => e.stopPropagation()}
-          />
-                </DropdownItem>
-              ))}
-            </Dropdown>
-            <Button onClick={handleSearch}>Search!</Button>
-          </>
-        ) : (
-          <div>
-            <InputBox1
+    <Container>
+      {searchResults.length > 0 ? (
+        <>
+          <Dropdown>
+            <InputBox2
               type="text"
               placeholder="Search Player..."
               value={text}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
             />
-            <Button onClick={handleSearch}>Search!</Button>
-          </div>
-        )}
-      </SearchContainer>
+            <Hr />
+
+            {searchResults.map((player) => (
+              <DropdownItem
+                key={player.brawlhalla_id}
+                onClick={() => handlePlayerSelect(player)}
+              >
+                <SmallP>
+                  #{player.rank} / {player.rating}
+                </SmallP>
+                <Image
+                  src={`/ranks/${player.tier}.webp`}
+                  width={30}
+                  height={30}
+                  alt={player.tier}
+                  style={{ marginRight: "10px" }}
+                />
+                <Image
+                  src={`/legends/${legendToID[player.best_legend]}.png`}
+                  width={30}
+                  height={30}
+                  alt={legendToID[player.best_legend]}
+                  style={{ marginRight: "10px" }}
+                />
+                {player.name}
+                <WLContainer>
+                  W/L: {player.wins}-{player.games - player.wins}
+                </WLContainer>
+                <FavoriteButton
+                  rankedData={player}
+                  playerId={player.brawlhalla_id}
+                  legend={legendToID[player.best_legend]}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </DropdownItem>
+            ))}
+          </Dropdown>
+          <Button onClick={handleSearch}>Search!</Button>
+        </>
+      ) : (
+        <>
+          <InputBox1
+            type="text"
+            placeholder="Search Player..."
+            value={text}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+          />
+          <Button onClick={handleSearch}>Search!</Button>
+        </>
+      )}
+
       <p>{underText}</p>
-    </div>
+    </Container>
   );
 };
 

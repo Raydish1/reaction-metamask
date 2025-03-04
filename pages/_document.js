@@ -37,7 +37,7 @@ export default class MyDocument extends Document { //I found this solution to hy
             rel="stylesheet"
           />
         </Head>
-        <body style={{margin:0}}> 
+        <body style={{ margin:0, overflowX: "visible",minWidth:"110vh" }}> 
           <Main />
           <NextScript />
         </body>

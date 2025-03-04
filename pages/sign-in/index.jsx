@@ -1,6 +1,9 @@
 /*Page that lets you sign in OR sign up, granting access to Favorites*/
 import React, { useState, useEffect } from "react";
-import { useSignInWithEmailAndPassword, useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import {
+  useSignInWithEmailAndPassword,
+  useCreateUserWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
 import { auth } from "../../backend/firebase";
 import { useRouter } from "next/navigation";
 import RootLayout from "../layout";
@@ -13,7 +16,9 @@ const AuthContainer = styled.div`
   align-items: center;
   min-height: 100vh;
   background-color: #f0f0f0;
-  font-family:Quicksand;
+  font-family: Quicksand;
+  min-width: 100vh;
+  overflow-x: visible;
 `;
 
 const AuthBox = styled.div`
@@ -52,14 +57,14 @@ const Button = styled.button`
   display: inline-block;
   font-size: 16px;
   border-radius: 15px;
-  font-family:Quicksand;
+  font-family: Quicksand;
   box-shadow: rgba(121, 121, 121, 0.24) 0px 0px 7px;
-  transition:0.3s;
+  transition: 0.3s;
 
-  &:hover{
-  cursor:pointer;
-  box-shadow: rgba(121, 121, 121, 0.24) 0px 0px 15px;
-}
+  &:hover {
+    cursor: pointer;
+    box-shadow: rgba(121, 121, 121, 0.24) 0px 0px 15px;
+  }
 
   &:disabled {
     background-color: #ccc;
@@ -80,8 +85,12 @@ const SigninSignup = () => {
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signInWithEmailAndPassword, loggedInUser, loadingSignIn, errorSignIn] =
     useSignInWithEmailAndPassword(auth);
-  const [createUserWithEmailAndPassword, createdUser, loadingSignup, errorSignup] =
-    useCreateUserWithEmailAndPassword(auth);
+  const [
+    createUserWithEmailAndPassword,
+    createdUser,
+    loadingSignup,
+    errorSignup,
+  ] = useCreateUserWithEmailAndPassword(auth);
   const router = useRouter();
 
   const handleSignIn = async (e) => {
@@ -99,7 +108,10 @@ const SigninSignup = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      const res = await createUserWithEmailAndPassword(signUpEmail, signUpPassword);
+      const res = await createUserWithEmailAndPassword(
+        signUpEmail,
+        signUpPassword
+      );
       if (res?.user) {
         setUser(res.user);
       }

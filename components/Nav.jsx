@@ -16,6 +16,7 @@ const StyledNav = styled.nav`
   border-bottom: 2px solid #666;
   font-family: Quicksand;
   z-index: 9;
+  min-width: 100vh;
 `;
 
 const NavLinks = styled.div`
@@ -82,13 +83,12 @@ const Nav = () => {
           <Image src="/favorites.png" alt="Favorites" width={25} height={25} />
           Favorites
         </StyledLink>
-      
 
-      <StyledLink href="/tournament">
-        <Image src="/trophy.svg" alt="Tournament" width={25} height={25} />
-        Tournament
+        <StyledLink href="/tournament">
+          <Image src="/trophy.svg" alt="Tournament" width={25} height={25} />
+          Tournament
         </StyledLink>
-    </NavLinks>
+      </NavLinks>
       <AuthButtons>
         {user ? (
           <StyledLink href="/sign-in" onClick={() => signOut(auth)}>
@@ -101,7 +101,6 @@ const Nav = () => {
               <Image src="/login.png" alt="Log In" width={25} height={25} />
               Log In / Sign up
             </StyledLink>
-            
           </>
         )}
       </AuthButtons>

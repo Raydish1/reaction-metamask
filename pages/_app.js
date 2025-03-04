@@ -3,12 +3,12 @@ import React from "react";
 
 
 function MyApp({ Component, pageProps }) {
-  return (<>
+  return (<div style={{ minWidth: "100vw" }}>
   
     <StateContext>
         
       <Component {...pageProps} />
-    </StateContext></>
+    </StateContext></div>
   );
 }
 
