@@ -236,71 +236,72 @@ const PromptCard = () => {
   };
 
   return (
-    <Container>
-      {searchResults.length > 0 ? (
-        <>
-          <Dropdown>
-            <InputBox2
+    <>
+      <Container>
+        {searchResults.length > 0 ? (
+          <>
+            <Dropdown>
+              <InputBox2
+                type="text"
+                placeholder="Search Player..."
+                value={text}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+              <Hr />
+
+              {searchResults.map((player) => (
+                <DropdownItem
+                  key={player.brawlhalla_id}
+                  onClick={() => handlePlayerSelect(player)}
+                >
+                  <SmallP>
+                    #{player.rank} / {player.rating}
+                  </SmallP>
+                  <Image
+                    src={`/ranks/${player.tier}.webp`}
+                    width={30}
+                    height={30}
+                    alt={player.tier}
+                    style={{ marginRight: "10px" }}
+                  />
+                  <Image
+                    src={`/legends/${legendToID[player.best_legend]}.png`}
+                    width={30}
+                    height={30}
+                    alt={legendToID[player.best_legend]}
+                    style={{ marginRight: "10px" }}
+                  />
+                  {player.name}
+                  <WLContainer>
+                    W/L: {player.wins}-{player.games - player.wins}
+                  </WLContainer>
+                  <FavoriteButton
+                    rankedData={player}
+                    playerId={player.brawlhalla_id}
+                    legend={legendToID[player.best_legend]}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </DropdownItem>
+              ))}
+            </Dropdown>
+            <Button onClick={handleSearch}>Search!</Button>
+          </>
+        ) : (
+          <>
+            <InputBox1
               type="text"
               placeholder="Search Player..."
               value={text}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
             />
-            <Hr />
-
-            {searchResults.map((player) => (
-              <DropdownItem
-                key={player.brawlhalla_id}
-                onClick={() => handlePlayerSelect(player)}
-              >
-                <SmallP>
-                  #{player.rank} / {player.rating}
-                </SmallP>
-                <Image
-                  src={`/ranks/${player.tier}.webp`}
-                  width={30}
-                  height={30}
-                  alt={player.tier}
-                  style={{ marginRight: "10px" }}
-                />
-                <Image
-                  src={`/legends/${legendToID[player.best_legend]}.png`}
-                  width={30}
-                  height={30}
-                  alt={legendToID[player.best_legend]}
-                  style={{ marginRight: "10px" }}
-                />
-                {player.name}
-                <WLContainer>
-                  W/L: {player.wins}-{player.games - player.wins}
-                </WLContainer>
-                <FavoriteButton
-                  rankedData={player}
-                  playerId={player.brawlhalla_id}
-                  legend={legendToID[player.best_legend]}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </DropdownItem>
-            ))}
-          </Dropdown>
-          <Button onClick={handleSearch}>Search!</Button>
-        </>
-      ) : (
-        <>
-          <InputBox1
-            type="text"
-            placeholder="Search Player..."
-            value={text}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-          />
-          <Button onClick={handleSearch}>Search!</Button>
-        </>
-      )}
-
+            <Button onClick={handleSearch}>Search!</Button>
+          </>
+        )}
+      </Container>
       <p>{underText}</p>
-    </Container>
+    </>
   );
 };
 
