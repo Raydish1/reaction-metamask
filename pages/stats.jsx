@@ -273,7 +273,7 @@ const Stats = () => {
                           Peak: {rankedData.peak_rating}
                         </PeakRating>
                         <StatItem>
-                          W/L: {rankedData.wins}-{rankedData.games}
+                          W/L: {rankedData.wins}-{rankedData.games-rankedData.wins}
                         </StatItem>
                         <StatItem>Region: {rankedData.region}</StatItem>
                       </RatingText>
@@ -295,7 +295,7 @@ const Stats = () => {
                       </PeakRating>
                       <StatItem>
                       W/L: {rankedData["2v2"][0].wins}-
-                      {rankedData["2v2"][0].games}
+                      {rankedData["2v2"][0].games - rankedData["2v2"][0].wins}
                       </StatItem>
                       <StatItem>Region: {rankedData.region}</StatItem>
                       </RatingText>

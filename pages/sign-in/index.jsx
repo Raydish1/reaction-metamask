@@ -118,7 +118,7 @@ const SigninSignup = () => {
     <RootLayout>
       <AuthContainer>
         <AuthBox>
-          <h2>Sign In</h2>
+          <h2>Log In</h2>
           <Form onSubmit={handleSignIn}>
             <Label>Email:</Label>
             <Input
