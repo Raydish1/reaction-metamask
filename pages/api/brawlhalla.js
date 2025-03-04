@@ -1,4 +1,4 @@
-
+/*Code to handle brawlhalla api and get player data*/
 //RANKINGS https://api.brawlhalla.com/rankings/{bracket}/{region}/{page}?name={name}?api_key=   
 //STATS https://api.brawlhalla.com/player/{brawlhalla_id}/stats
 //RANKED STATS https://api.brawlhalla.com/player/{brawlhalla_id}/ranked

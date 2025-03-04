@@ -1,3 +1,5 @@
+/*Code to handle startgg api and get tournament data*/
+
 require('dotenv').config({ path: './.env.local' });
 
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));

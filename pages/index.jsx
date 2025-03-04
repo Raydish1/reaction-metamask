@@ -1,3 +1,5 @@
+/*Home page, has main search player function*/
+
 import RootLayout from "./layout";
 import PromptCard from "../components/PromptCard";
 import styled from "styled-components";
@@ -17,6 +19,9 @@ const styledSection = styled.section`
 const Container = styled.section`
   overflow-x: hidden;
 `;
+const H1 = styled.h1`
+font-size:200%;
+`
 
 const TextSquare = styled.div`
   position: absolute;
@@ -27,7 +32,7 @@ const TextSquare = styled.div`
   background-color: rgb(255, 255, 255);
   padding: 20px;
   width: 750px;
-  height: 540px;
+  height: 570px;
   padding-bottom: 100px;
   border: 0px solid rgb(110, 110, 110);
   border-radius: 1px; // Optional: Rounded corners
@@ -55,7 +60,7 @@ const Home = () => {
             quality={100}
           />
           <section style={myStyle}>
-            <h1>Brawlhalla Stats Bot</h1>
+            <H1>Brawlhalla Stats Bot</H1>
             <p>A website to find everything about your Brawlhalla stats</p>
 
             <PromptCard />

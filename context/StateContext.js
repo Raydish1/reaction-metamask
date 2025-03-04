@@ -1,3 +1,4 @@
+/*handles authentication context throughout the website*/
 import { useRouter } from 'next/router';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onIdTokenChanged } from 'firebase/auth';

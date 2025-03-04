@@ -1,3 +1,6 @@
+/*Page that displays your favorites (if logged in) <- read
+allows user to favorite/unfavorite from this page too  <- write */
+
 import RootLayout from "./layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";

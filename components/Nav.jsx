@@ -1,3 +1,5 @@
+/*navigation bar component, has links to all pages on the website*/
+
 import Link from "next/link";
 import Image from "next/image";
 import styled from "styled-components";

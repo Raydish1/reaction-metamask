@@ -1,3 +1,5 @@
+/*Player search bar component, main feature of the website*/
+
 import { useState } from "react";
 import { searchPlayer } from "../pages/api/brawlhalla.js";
 import { searchByName } from "../pages/api/brawlhalla.js";
@@ -172,9 +174,9 @@ const WLContainer = styled.div`
 
 const Hr = styled.hr`
 
-  border: 1px solid lightgray; /* Customize color and thickness */
-  width: 95%; /* Adjust width */
-  margin: 3px auto; /* Center and add spacing */
+  border: 1px solid lightgray; 
+  width: 95%; 
+  margin: 3px auto; 
   opacity:40%;
   
 

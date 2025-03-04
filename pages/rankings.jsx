@@ -1,3 +1,8 @@
+/*
+Page that displays top 50 ranked leaderboards. 
+Allows user to switch between regions/gamemodes
+*/
+
 import { useState } from "react";
 import RootLayout from "./layout";
 import { useEffect } from "react";
@@ -11,6 +16,7 @@ const RankingsContainer = styled.div`
   align-items: center;
   font-size: 125%;
   font-family: "Quicksand", sans-serif;
+  padding-bottom:30px;
   
 `;
 
@@ -22,7 +28,7 @@ const LeaderboardWrapper = styled.div`
 
 const RankingHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr 1fr 2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 2.5fr 1fr 2fr 1fr 1fr;
   padding: 20px;
   width: 1000px;
   font-weight: bold;
@@ -32,19 +38,23 @@ const RankingHeader = styled.div`
 
 const RankingRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr 1fr 2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 2.5fr 1fr 2fr 1fr 1fr;
   padding: 20px;
   width: 1000px;
   background: #fff;
   color: black;
 
-  &:nth-child(even) {
+  &:nth-child(even) { //every other row is shaded
     background: rgb(226, 226, 226);
+  }
+
+  & > span:nth-child(4) { /* adding padding to the 4th span, Name column */
+    padding-right: 15px; 
   }
 `;
 
 const RankingButton = styled.button`
-  border: 2px solid gray;
+  
   border-radius: 7px;
   width: 70px;
   height: 40px;
@@ -54,6 +64,8 @@ const RankingButton = styled.button`
   align-items: center;
   justify-content: center;
   margin: 5px;
+  border: ${(props) => (props.selected ? "2px solid black" : "2px solid gray")}; 
+  transition:0.2s;
 `;
 const CenteredDiv = styled.div`
   display: flex;
@@ -73,7 +85,7 @@ const Header = styled.h1`
 
 const Container = styled.div`
   background-image: url('/triangle-background.png');
-  height: 100vh;
+  height:110%;
   
 `;
 export default function Rankings() {
@@ -99,30 +111,51 @@ export default function Rankings() {
       <Container>
       <Header>Rankings</Header>
       <CenteredDiv>
-        <RankingButton onClick={() => handleModeClick("1v1")}>
-          1v1
-        </RankingButton>
-        <RankingButton onClick={() => handleModeClick("2v2")}>
-          2v2
-        </RankingButton>
-      </CenteredDiv>
-      <CenteredDiv>
-        <RankingButton onClick={() => handleRegionClick("us-e")}>
-          US-E
-        </RankingButton>
-        <RankingButton onClick={() => handleRegionClick("eu")}>
-          EU
-        </RankingButton>
-        <RankingButton onClick={() => handleRegionClick("brz")}>
-          BRZ
-        </RankingButton>
-        <RankingButton onClick={() => handleRegionClick("us-w")}>
-          US-W
-        </RankingButton>
-        <RankingButton onClick={() => handleRegionClick("sea")}>
-          SEA
-        </RankingButton>
-      </CenteredDiv>
+  <RankingButton
+    onClick={() => handleModeClick("1v1")}
+    selected={mode === "1v1"} // pass true if current mode is 1v1
+  >
+    1v1
+  </RankingButton>
+  <RankingButton
+    onClick={() => handleModeClick("2v2")}
+    selected={mode === "2v2"} 
+  >
+    2v2
+  </RankingButton>
+</CenteredDiv>
+<CenteredDiv>
+  <RankingButton
+    onClick={() => handleRegionClick("us-e")}
+    selected={region === "us-e"} // pass true if current region is us-e
+  >
+    US-E
+  </RankingButton>
+  <RankingButton
+    onClick={() => handleRegionClick("eu")}
+    selected={region === "eu"} 
+  >
+    EU
+  </RankingButton>
+  <RankingButton
+    onClick={() => handleRegionClick("brz")}
+    selected={region === "brz"} 
+  >
+    BRZ
+  </RankingButton>
+  <RankingButton
+    onClick={() => handleRegionClick("us-w")}
+    selected={region === "us-w"} 
+  >
+    US-W
+  </RankingButton>
+  <RankingButton
+    onClick={() => handleRegionClick("sea")}
+    selected={region === "sea"} 
+  >
+    SEA
+  </RankingButton>
+</CenteredDiv>
 
       {displayedRankings ? (
         <RankingsContainer>

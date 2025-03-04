@@ -1,3 +1,4 @@
+/*Page that lets you sign in OR sign up, granting access to Favorites*/
 import React, { useState, useEffect } from "react";
 import { useSignInWithEmailAndPassword, useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "../../backend/firebase";

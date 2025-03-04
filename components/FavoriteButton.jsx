@@ -1,5 +1,5 @@
 
-//button styled component
+//button that allows user to favorite/unfavorite a player
 // if user not signed in, grayed out style
 //if already in user database, show already favorited style with red on hover
 // if signed in and want to favorite, write it into the firestore

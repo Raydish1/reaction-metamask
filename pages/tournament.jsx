@@ -1,3 +1,9 @@
+/*
+Page that displays all major brawlhalla tournaments for each year
+choose year/region 
+allow click to open up start.gg tournament page
+*/
+
 import React, { useState, useEffect } from 'react';
 import RootLayout from "./layout";
 import styled from 'styled-components';
@@ -186,7 +192,7 @@ const Tournament = () => {
                   <TournamentTitle onClick={() => handleTournamentClick(tournament.slug)}>
                     {tournament.tournament.name}
                   </TournamentTitle>
-                  <p>Start Date: {new Date(tournament.startAt * 1000).toLocaleDateString()}</p>
+                  <p>{new Date(tournament.startAt * 1000).toLocaleDateString()}</p>
                   <p>Winner: {tournament.firstPlace}</p>
                 </TournamentItem>
                 
