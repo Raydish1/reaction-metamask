@@ -3,9 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import styled from "styled-components";
-import { auth } from "../backend/firebase.js";
-import { signOut } from "firebase/auth";
-import { useStateContext } from "../context/StateContext";
 
 const StyledNav = styled.nav`
   display: flex;
@@ -59,8 +56,6 @@ const LogoutButton = styled.button`
 `;
 
 const Nav = () => {
-  const { user } = useStateContext();
-
   return (
     <StyledNav>
       <NavLinks>
@@ -90,19 +85,14 @@ const Nav = () => {
         </StyledLink>
       </NavLinks>
       <AuthButtons>
-        {user ? (
-          <StyledLink href="/sign-in" onClick={() => signOut(auth)}>
-            <Image src="/logout.png" alt="Log Out" width={25} height={25} />
-            Log Out
+        (
+        <>
+          <StyledLink href="/sign-in">
+            <Image src="/login.png" alt="Log In" width={25} height={25} />
+            Log In / Sign up
           </StyledLink>
-        ) : (
-          <>
-            <StyledLink href="/sign-in">
-              <Image src="/login.png" alt="Log In" width={25} height={25} />
-              Log In / Sign up
-            </StyledLink>
-          </>
-        )}
+        </>
+        )
       </AuthButtons>
     </StyledNav>
   );
