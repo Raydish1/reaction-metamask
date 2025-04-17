@@ -433,11 +433,15 @@ function Game() {
             });
 
             channelInstance.on('message.new', (event) => {
-                setMessages((prevMessages) => [...prevMessages, event]);
-                if (event.user.id !== account && event.text.startsWith('reacted in ')) {
+                setMessages(currentMessages => [...currentMessages, event]);
+                if (event.text === '!start-game') {
+                    startGame();
+                } else if (event.user.id !== account && event.text.startsWith('reacted in ')) {
                     const time = parseInt(event.text.split(' ')[2].slice(0, -2));
                     setOpponentReactionTime(time);
-                    evaluateWinner(myReactionTime, time);
+                    if (myReactionTime > 0) {
+                        evaluateWinner(myReactionTime, time);
+                    }
                 }
             });
         } else {
@@ -533,8 +537,8 @@ function Game() {
 
     const handleStartGameButtonClick = () => {
         if (streamChannel && canStartGame && !isGameActive) {
-            streamChannel.sendMessage({ text: '!start-signal' }); // Send a signal to the opponent (optional)
-            startGame();
+            streamChannel.sendMessage({ text: '!start-game' }); // Send a specific start game message
+            startGame(); // Start the game locally immediately
         }
     };
 
@@ -558,7 +562,9 @@ function Game() {
             setMyReactionTime(reactionTimeMs);
             streamChannel.sendMessage({ text: `reacted in ${reactionTimeMs}ms` });
             setIsReacting(false);
-            evaluateWinner(reactionTimeMs, opponentReactionTime);
+            if (opponentReactionTime > 0) {
+                evaluateWinner(reactionTimeMs, opponentReactionTime);
+            }
         }
     };
 
