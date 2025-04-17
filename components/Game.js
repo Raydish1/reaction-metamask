@@ -328,6 +328,7 @@ const ReadyIndicator = styled.div`
 function Game() {
     const [web3, setWeb3] = useState(null);
     const [account, setAccount] = useState(null);
+    const [contract, setContract] = useState(null);
     const [streamClient, setStreamClient] = useState(null);
     const [streamChannel, setStreamChannel] = useState(null);
     const [streamToken, setStreamToken] = useState(null);
@@ -357,6 +358,12 @@ function Game() {
                     setWeb3(web3Instance);
                     const accounts = await web3Instance.eth.getAccounts();
                     setAccount(accounts[0]);
+                    // Assuming contractABI is defined before this block
+                    const contractInstance = new web3Instance.eth.Contract(
+                        /* Your contractABI here */ [],
+                        contractAddress
+                    );
+                    setContract(contractInstance);
                     await initStreamChat(accounts[0]);
                 } catch (err) {
                     setError('User denied account access');
@@ -399,7 +406,7 @@ function Game() {
         }
     }, [account, streamApiKey, streamToken]);
 
-   useEffect(() => {
+    useEffect(() => {
         let channelInstance = null;
 
         if (streamClient && gameChannelId) {
@@ -429,7 +436,7 @@ function Game() {
             channelInstance.on('message.new', (event) => {
                 console.log('New message received:', event);
                 setMessages(currentMessages => [...currentMessages, event]);
-                if (event.text === '!start-game') { // Check for the text directly
+                if (event.text === '!start-game') {
                     startGame();
                 } else if (event.text && event.user.id !== account && event.text.startsWith('reacted in ')) {
                     const time = parseInt(event.text.split(' ')[2].slice(0, -2));
@@ -534,7 +541,7 @@ function Game() {
         if (streamChannel && canStartGame && !isGameActive) {
             console.log('Attempting to send start game message:', streamChannel);
             if (streamChannel.sendMessage) {
-                const messageToSend = { text: '!start-game', data: { type: 'startGame' } };
+                const messageToSend = { text: '!start-game' };
                 console.log('Sending message:', messageToSend);
                 streamChannel.sendMessage(messageToSend)
                     .then((result) => console.log('Message sent successfully:', result))
@@ -686,4 +693,5 @@ function Game() {
         </GameContainer>
     );
 }
+
 export default Game;
