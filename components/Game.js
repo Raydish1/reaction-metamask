@@ -399,7 +399,7 @@ function Game() {
         }
     }, [account, streamApiKey, streamToken]);
 
-    useEffect(() => {
+   useEffect(() => {
         let channelInstance = null;
 
         if (streamClient && gameChannelId) {
@@ -429,7 +429,7 @@ function Game() {
             channelInstance.on('message.new', (event) => {
                 console.log('New message received:', event);
                 setMessages(currentMessages => [...currentMessages, event]);
-                if (event.data && event.data.type === 'startGame') {
+                if (event.text === '!start-game') { // Check for the text directly
                     startGame();
                 } else if (event.text && event.user.id !== account && event.text.startsWith('reacted in ')) {
                     const time = parseInt(event.text.split(' ')[2].slice(0, -2));
