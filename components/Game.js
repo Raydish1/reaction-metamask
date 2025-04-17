@@ -426,6 +426,7 @@ function Game() {
             };
 
             channelInstance.watch().then(() => {
+                console.log('Successfully watching channel:', channelInstance);
                 fetchChannelHistory();
             }).catch((error) => {
                 console.error('Error watching channel:', error);
@@ -433,6 +434,7 @@ function Game() {
             });
 
             channelInstance.on('message.new', (event) => {
+                console.log('New message received:', event);
                 setMessages(currentMessages => [...currentMessages, event]);
                 if (event.text === '!start-game') {
                     startGame();
@@ -537,8 +539,17 @@ function Game() {
 
     const handleStartGameButtonClick = () => {
         if (streamChannel && canStartGame && !isGameActive) {
-            streamChannel.sendMessage({ text: '!start-game' }); // Send a specific start game message
-            startGame(); // Start the game locally immediately
+            console.log('Attempting to send start game message:', streamChannel);
+            if (streamChannel.sendMessage) {
+                const messageToSend = { text: '!start-game' };
+                console.log('Sending message:', messageToSend);
+                streamChannel.sendMessage(messageToSend)
+                    .then((result) => console.log('Message sent successfully:', result))
+                    .catch((error) => console.error('Error sending message:', error));
+                startGame();
+            } else {
+                console.error('streamChannel.sendMessage is not available yet.');
+            }
         }
     };
 
