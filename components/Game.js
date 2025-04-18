@@ -579,6 +579,7 @@ function Game() {
         
         reactionTimeout.current = setTimeout(() => {
             const now = Date.now();
+            setMyReactionTime(0);
             setStartTime(now);
             setCanReact(true);
             console.log("Reaction time window started at:", now);
