@@ -348,6 +348,7 @@ function Game() {
     const [pendingChallengeChannelId, setPendingChallengeChannelId] = useState(null);
     const [challengerAddress, setChallengerAddress] = useState(null);
     const [canStartGame, setCanStartGame] = useState(false); // New state for start button
+    const hasGameStartedRef = useRef(false);
 
     useEffect(() => {
         const initWeb3AndStream = async () => {
@@ -360,7 +361,7 @@ function Game() {
                     setAccount(accounts[0]);
                     // Assuming contractABI is defined before this block
                     const contractInstance = new web3Instance.eth.Contract(
-                        /* Your contractABI here */ [],
+                        contractABI,
                         contractAddress
                     );
                     setContract(contractInstance);
@@ -408,6 +409,8 @@ function Game() {
 
     useEffect(() => {
         let channelInstance = null;
+        
+
 
         if (streamClient && gameChannelId) {
             channelInstance = streamClient.channel('messaging', gameChannelId);
@@ -436,25 +439,31 @@ function Game() {
             channelInstance.on('message.new', (event) => {
                 console.log('New message received:', event);
                 setMessages(currentMessages => [...currentMessages, event]);
-                if (event.text === '!start-game') {
+            
+                if (event.message && event.message.text === '!start-game' && !hasGameStartedRef.current) {
+                    console.log('Received !start-game, calling startGame');
+                    hasGameStartedRef.current = true;
                     startGame();
-                } else if (event.text && event.user.id !== account && event.text.startsWith('reacted in ')) {
-                    const time = parseInt(event.text.split(' ')[2].slice(0, -2));
+                } else if (event.user.id !== account && event.message.text.startsWith('reacted in ')) {
+                    const time = parseInt(event.message.text.split(' ')[2].slice(0, -2));
                     setOpponentReactionTime(time);
                     if (myReactionTime > 0) {
                         evaluateWinner(myReactionTime, time);
                     }
                 }
             });
+            
         } else {
             setStreamChannel(null);
             setMessages([]);
+            hasGameStartedRef.current = false; // Reset the flag when leaving the channel
         }
 
         return () => {
             if (channelInstance && typeof channelInstance.isWatching === 'function' && channelInstance.isWatching()) {
                 channelInstance.stopWatching();
             }
+            hasGameStartedRef.current = false; // Reset the flag on unmount
         };
     }, [streamClient, gameChannelId, account, myReactionTime]);
 
@@ -546,7 +555,7 @@ function Game() {
                 streamChannel.sendMessage(messageToSend)
                     .then((result) => console.log('Message sent successfully:', result))
                     .catch((error) => console.error('Error sending message:', error));
-                startGame();
+                
             } else {
                 console.error('streamChannel.sendMessage is not available yet.');
             }
@@ -554,25 +563,51 @@ function Game() {
     };
 
     const startGame = () => {
-        setIsGameActive(true);
-        setStartTime(Date.now() + Math.random() * 3000 + 1000); // Random delay
-        setCanReact(false);
+        
+        console.log("startGame called");
+        setStartTime(Date.now());
         setMyReactionTime(0);
         setOpponentReactionTime(0);
         setGameResult(null);
-
+        setCanReact(false);
+        setIsReacting(false);
+        hasGameStartedRef.current = true;
+        setIsGameActive(true);
+        const minDelay = 5000; // 5 seconds
+        const maxDelay = 10000; // 10 seconds
+        const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
+        
         reactionTimeout.current = setTimeout(() => {
+            const now = Date.now();
+            setStartTime(now);
             setCanReact(true);
-        }, startTime - Date.now());
+            console.log("Reaction time window started at:", now);
+        }, randomDelay);
     };
-
+    
+    const handlePlayAgain = () => {
+        setStartTime(0);
+        setMyReactionTime(0);
+        setOpponentReactionTime(0);
+        setGameResult(null);
+        setCanReact(false);
+        setIsReacting(false);
+        hasGameStartedRef.current = false;
+        setIsGameActive(false);
+        setCanStartGame(true); // allow the game to be started again
+    };
+      
     const handleSubmitReaction = () => {
         if (isGameActive && canReact && !isReacting && streamChannel) {
+            console.log('handleSubmitReaction called');
+            setCanReact(false); // This correctly sets it to false immediately
+            console.log('canReact set to false in handleSubmitReaction');
             setIsReacting(true);
             const reactionTimeMs = Date.now() - startTime;
             setMyReactionTime(reactionTimeMs);
             streamChannel.sendMessage({ text: `reacted in ${reactionTimeMs}ms` });
             setIsReacting(false);
+
             if (opponentReactionTime > 0) {
                 evaluateWinner(reactionTimeMs, opponentReactionTime);
             }
@@ -581,16 +616,23 @@ function Game() {
 
     const evaluateWinner = (player1Time, player2Time) => {
         if (player1Time > 0 && player2Time > 0) {
+            let result = '';
             if (player1Time < player2Time) {
-                setGameResult('You won!');
+                result = 'You won!';
             } else if (player2Time < player1Time) {
-                setGameResult('Opponent won!');
+                result = 'You Lost!';
             } else {
-                setGameResult('It\'s a tie!');
+                result = 'It\'s a tie!';
             }
+            console.log('Game result determined:', result);
+            setGameResult(String(result));
             setIsGameActive(false);
+            console.log('isGameActive set to false');
             clearTimeout(reactionTimeout.current);
             setCanReact(false);
+            console.log('canReact set to false');
+            hasGameStartedRef.current = false;
+            console.log('hasGameStartedRef set to false');
         }
     };
 
@@ -617,6 +659,8 @@ function Game() {
             setNewMessage('');
         }
     };
+
+
 
     return (
         <GameContainer>
@@ -664,7 +708,7 @@ function Game() {
                         Send
                     </Button>
 
-                    {!isGameActive && gameChannelId && canStartGame ? (
+                    {!isGameActive && gameChannelId && canStartGame && !gameResult ? (
                         <Button onClick={handleStartGameButtonClick}>Start Game</Button>
                     ) : isGameActive ? (
                         <div>
@@ -675,16 +719,19 @@ function Game() {
                             </Button>
                             {myReactionTime > 0 && <p>Your reaction time: {myReactionTime} ms</p>}
                             {opponentReactionTime > 0 && <p>Opponent's reaction time: {opponentReactionTime} ms</p>}
-                            {gameResult && <p>{gameResult}</p>}
+                            {gameResult && <p>{gameResult} (This shouldn't be visible here)</p>} {/* Debugging */}
                         </div>
                     ) : gameResult ? (
-                        <ResultsDisplay>
+                        <div>
+                        <ResultsDisplay key={gameResult}>
                             <h2>Game Over!</h2>
                             <p>{gameResult}</p>
                             {myReactionTime > 0 && <p>Your Reaction Time: {myReactionTime} ms</p>}
                             {opponentReactionTime > 0 && <p>Opponent's Reaction Time: {opponentReactionTime} ms</p>}
                             <Button onClick={handleEndGame}>End Game</Button>
+                            <Button onClick={handlePlayAgain}>Play Again</Button>
                         </ResultsDisplay>
+                        </div>
                     ) : (
                         <p>Waiting for opponent to accept the challenge.</p>
                     )}
