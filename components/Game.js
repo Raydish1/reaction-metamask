@@ -547,6 +547,13 @@ function Game() {
     };
 
     const handleStartGameButtonClick = () => {
+        setMyReactionTime(0);
+        setOpponentReactionTime(0);
+        setGameResult(null);
+        setCanReact(false);
+        setIsReacting(false);
+        hasGameStartedRef.current = true;
+        setIsGameActive(true);
         if (streamChannel && canStartGame && !isGameActive) {
             console.log('Attempting to send start game message:', streamChannel);
             if (streamChannel.sendMessage) {
