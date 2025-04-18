@@ -141,25 +141,24 @@ function Game() {
         } else {
             setStreamChannel(null);
             setMessages([]);
-            hasGameStartedRef.current = false; // Reset the flag when leaving the channel
+            hasGameStartedRef.current = false; 
         }
 
         return () => {
             if (channelInstance && typeof channelInstance.isWatching === 'function' && channelInstance.isWatching()) {
                 channelInstance.stopWatching();
             }
-            hasGameStartedRef.current = false; // Reset the flag on unmount
+            hasGameStartedRef.current = false; 
         };
     }, [streamClient, gameChannelId, account, myReactionTime]);
 
     useEffect(() => {
         if (streamClient && gameChannelId) {
-            // As soon as we are in a game channel, allow starting
+            
             setCanStartGame(true);
 
             const handleMemberUpdated = (event) => {
-                // You might still want to log member updates or handle other member-related events here
-                // For now, the start button remains enabled once in the channel
+                
                 console.log('Channel member updated:', event);
             };
 
@@ -318,13 +317,13 @@ function Game() {
         setIsReacting(false);
         hasGameStartedRef.current = false;
         setIsGameActive(false);
-        setCanStartGame(true); // allow the game to be started again
+        setCanStartGame(true); 
     };
 
     const handleSubmitReaction = () => {
         if (isGameActive && canReact && !isReacting && streamChannel) {
             console.log('handleSubmitReaction called');
-            setCanReact(false); // This correctly sets it to false immediately
+            setCanReact(false); 
             console.log('canReact set to false in handleSubmitReaction');
             setIsReacting(true);
             const reactionTimeMs = Date.now() - startTime;
@@ -433,7 +432,7 @@ function Game() {
                             isReacting={isReacting}
                             myReactionTime={myReactionTime}
                             onSubmitReaction={handleSubmitReaction}
-                            onStartGame={handleStartGameButtonClick} // Potentially not needed here
+                            onStartGame={handleStartGameButtonClick} 
                         />
                     ) : gameResult ? (
                         <ResultsDisplay
