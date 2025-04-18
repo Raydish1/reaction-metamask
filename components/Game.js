@@ -1,329 +1,17 @@
 // --- src/components/Game.js ---
-import React, { useState, useEffect , useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Web3 from 'web3';
 import { StreamChat } from 'stream-chat';
-import sha256 from 'js-sha256'
+import sha256 from 'js-sha256';
 
-import styled, { keyframes } from 'styled-components';
+import { GameContainer, Input, Button } from './styles';
+import ReadyIndicator from './ReadyIndicator';
+import ResultsDisplay from './ResultsDisplay';
+import GameChat from './GameChat';
+import GameControls from './GameControls';
 
-const contractABI = [
-	{
-		"inputs": [],
-		"name": "acceptGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			}
-		],
-		"name": "GameEnded",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [],
-		"name": "GameReset",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player1",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player2",
-				"type": "address"
-			}
-		],
-		"name": "GameStarted",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_player2",
-				"type": "address"
-			}
-		],
-		"name": "joinGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player2",
-				"type": "address"
-			}
-		],
-		"name": "Player2Accepted",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "reactionTime",
-				"type": "uint256"
-			}
-		],
-		"name": "ReactionSubmitted",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "resetGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "startGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_reactionTime",
-				"type": "uint256"
-			}
-		],
-		"name": "submitReactionTime",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "gameEnded",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "gameStarted",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getGameStatus",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "player1",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "player1ReactionTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "player2",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "player2Accepted",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "player2ReactionTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "startTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const streamApiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
-
-const GameContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-`;
-
-const Input = styled.input`
-    padding: 10px;
-    margin: 10px;
-`;
-
-const Button = styled.button`
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 1.1em;
-    cursor: pointer;
-`;
-
-const ResultsDisplay = styled.div`
-    margin-top: 20px;
-    font-size: 1.5em;
-    text-align: center;
-`;
-
-const ReactionPrompt = styled.div`
-    font-size: 2em;
-    margin-bottom: 20px;
-`;
-
-const blink = keyframes`
-    50% { opacity: 0; }
-`;
-
-const ReadyIndicator = styled.div`
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: red;
-    margin-bottom: 20px;
-    opacity: ${({ ready }) => (ready ? 1 : 0.5)};
-    background-color: ${({ ready }) => (ready ? 'green' : 'red')};
-`;
 
 function Game() {
     const [web3, setWeb3] = useState(null);
@@ -347,7 +35,7 @@ function Game() {
     const [newMessage, setNewMessage] = useState('');
     const [pendingChallengeChannelId, setPendingChallengeChannelId] = useState(null);
     const [challengerAddress, setChallengerAddress] = useState(null);
-    const [canStartGame, setCanStartGame] = useState(false); // New state for start button
+    const [canStartGame, setCanStartGame] = useState(false);
     const hasGameStartedRef = useRef(false);
 
     useEffect(() => {
@@ -359,9 +47,8 @@ function Game() {
                     setWeb3(web3Instance);
                     const accounts = await web3Instance.eth.getAccounts();
                     setAccount(accounts[0]);
-                    // Assuming contractABI is defined before this block
                     const contractInstance = new web3Instance.eth.Contract(
-                        contractABI,
+                        [], // Removed contractABI
                         contractAddress
                     );
                     setContract(contractInstance);
@@ -409,8 +96,6 @@ function Game() {
 
     useEffect(() => {
         let channelInstance = null;
-        
-
 
         if (streamClient && gameChannelId) {
             channelInstance = streamClient.channel('messaging', gameChannelId);
@@ -439,7 +124,7 @@ function Game() {
             channelInstance.on('message.new', (event) => {
                 console.log('New message received:', event);
                 setMessages(currentMessages => [...currentMessages, event]);
-            
+
                 if (event.message && event.message.text === '!start-game' && !hasGameStartedRef.current) {
                     console.log('Received !start-game, calling startGame');
                     hasGameStartedRef.current = true;
@@ -452,7 +137,7 @@ function Game() {
                     }
                 }
             });
-            
+
         } else {
             setStreamChannel(null);
             setMessages([]);
@@ -516,6 +201,42 @@ function Game() {
         }
     }, [streamClient, account, gameChannelId]);
 
+
+    const checkBothPlayersPresent = async () => {
+        if (streamChannel) {
+            try {
+                const members = await streamChannel.queryMembers({});
+                return members.members.length === 2;
+            } catch (err) {
+                console.error('Error checking members:', err);
+            }
+        }
+        return false;
+    };
+    useEffect(() => {
+        if (!streamChannel) return;
+
+        const updateCanStartGame = async () => {
+            const bothPresent = await checkBothPlayersPresent();
+            setCanStartGame(bothPresent);
+        };
+
+        updateCanStartGame();
+
+        const handleMemberChange = () => {
+            updateCanStartGame();
+        };
+
+        streamChannel.on('member.added', handleMemberChange);
+        streamChannel.on('member.removed', handleMemberChange);
+
+        return () => {
+            streamChannel.off('member.added', handleMemberChange);
+            streamChannel.off('member.removed', handleMemberChange);
+        };
+    }, [streamChannel]);
+
+
     const handleChallengePlayer = async () => {
         if (!streamClient || !account || !opponentAddress) {
             setError('Stream Chat not initialized or opponent address missing.');
@@ -548,7 +269,7 @@ function Game() {
 
     const handleStartGameButtonClick = () => {
         setMyReactionTime(0);
-        
+
         if (streamChannel && canStartGame && !isGameActive) {
             console.log('Attempting to send start game message:', streamChannel);
             if (streamChannel.sendMessage) {
@@ -557,7 +278,7 @@ function Game() {
                 streamChannel.sendMessage(messageToSend)
                     .then((result) => console.log('Message sent successfully:', result))
                     .catch((error) => console.error('Error sending message:', error));
-                
+
             } else {
                 console.error('streamChannel.sendMessage is not available yet.');
             }
@@ -565,7 +286,7 @@ function Game() {
     };
 
     const startGame = () => {
-        
+
         console.log("startGame called");
         setStartTime(Date.now());
         setMyReactionTime(0);
@@ -578,7 +299,7 @@ function Game() {
         const minDelay = 5000; // 5 seconds
         const maxDelay = 10000; // 10 seconds
         const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
-        
+
         reactionTimeout.current = setTimeout(() => {
             const now = Date.now();
             setMyReactionTime(0);
@@ -587,7 +308,7 @@ function Game() {
             console.log("Reaction time window started at:", now);
         }, randomDelay);
     };
-    
+
     const handlePlayAgain = () => {
         setStartTime(0);
         setMyReactionTime(0);
@@ -599,7 +320,7 @@ function Game() {
         setIsGameActive(false);
         setCanStartGame(true); // allow the game to be started again
     };
-      
+
     const handleSubmitReaction = () => {
         if (isGameActive && canReact && !isReacting && streamChannel) {
             console.log('handleSubmitReaction called');
@@ -663,7 +384,9 @@ function Game() {
         }
     };
 
-
+    const handleNewMessageChange = (e) => {
+        setNewMessage(e.target.value);
+    };
 
     return (
         <GameContainer>
@@ -692,49 +415,34 @@ function Game() {
                 </div>
             ) : (
                 <div>
-                    <h3>Chat with Opponent ({opponentAddress.substring(0, 8)}...)</h3>
-                    <div style={{ height: '200px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px' }}>
-                        {messages.map((msg) => (
-                            <div key={msg.id}>
-                                <strong>{msg.user.id.substring(0, 8)}...:</strong> {msg.text}
-                            </div>
-                        ))}
-                    </div>
-                    <Input
-                        type="text"
-                        placeholder="Type your message"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+                    <GameChat
+                        messages={messages}
+                        newMessage={newMessage}
+                        onNewMessageChange={handleNewMessageChange}
+                        onSendMessage={sendMessage}
                     />
-                    <Button onClick={sendMessage} disabled={!streamChannel || !newMessage}>
-                        Send
-                    </Button>
 
                     {!isGameActive && gameChannelId && canStartGame && !gameResult ? (
-                        <Button onClick={handleStartGameButtonClick}>Start Game</Button>
+                        <Button onClick={handleStartGameButtonClick} disabled={!canStartGame}>
+                            Start Game
+                        </Button>
                     ) : isGameActive ? (
-                        <div>
-                            <ReactionPrompt>React when the indicator turns green!</ReactionPrompt>
-                            <ReadyIndicator ready={canReact} />
-                            <Button onClick={handleSubmitReaction} disabled={!canReact || isReacting || myReactionTime > 0}>
-                                {isReacting ? 'Reacting...' : myReactionTime > 0 ? 'Reacted!' : 'React!'}
-                            </Button>
-                            {myReactionTime > 0 && <p>Your reaction time: {myReactionTime} ms</p>}
-                            {opponentReactionTime > 0 && <p>Opponent's reaction time: {opponentReactionTime} ms</p>}
-                            {gameResult && <p>{gameResult} (This shouldn't be visible here)</p>} {/* Debugging */}
-                        </div>
+                        <GameControls
+                            isGameActive={isGameActive}
+                            canReact={canReact}
+                            isReacting={isReacting}
+                            myReactionTime={myReactionTime}
+                            onSubmitReaction={handleSubmitReaction}
+                            onStartGame={handleStartGameButtonClick} // Potentially not needed here
+                        />
                     ) : gameResult ? (
-                        <div>
-                        <ResultsDisplay key={gameResult}>
-                            <h2>Game Over!</h2>
-                            <p>{gameResult}</p>
-                            {myReactionTime > 0 && <p>Your Reaction Time: {myReactionTime} ms</p>}
-                            {opponentReactionTime > 0 && <p>Opponent's Reaction Time: {opponentReactionTime} ms</p>}
-                            <Button onClick={handleEndGame}>End Game</Button>
-                            <Button onClick={handlePlayAgain}>Play Again</Button>
-                        </ResultsDisplay>
-                        </div>
+                        <ResultsDisplay
+                            gameResult={gameResult}
+                            myReactionTime={myReactionTime}
+                            opponentReactionTime={opponentReactionTime}
+                            onEndGame={handleEndGame}
+                            onPlayAgain={handlePlayAgain}
+                        />
                     ) : (
                         <p>Waiting for opponent to accept the challenge.</p>
                     )}
