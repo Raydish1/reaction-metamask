@@ -8,8 +8,8 @@ import ReadyIndicator from './ReadyIndicator';
 import ResultsDisplay from './ResultsDisplay';
 import GameChat from './GameChat';
 import GameControls from './GameControls'; 
-import erc20ABI from '../utils/erc20ABI.json'; 
-import reactiongameABI from '../utils/reactionGameABI.json';
+import erc20ABI from '../utils/erc20ABI.js'; 
+import reactiongameABI from '../utils/reactiongameABI.js';
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const streamApiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;

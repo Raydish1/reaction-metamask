@@ -1,4 +1,4 @@
-[
+const erc20ABI = [
 	{
 		"inputs": [
 			{
@@ -1047,3 +1047,4 @@
 		"type": "function"
 	}
 ]
+export default erc20ABI;

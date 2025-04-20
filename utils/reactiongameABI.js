@@ -1,4 +1,4 @@
-[
+const reactiongameABI = [
 	{
 		"inputs": [
 			{
@@ -576,3 +576,4 @@
 		"type": "function"
 	}
 ]
+export default reactiongameABI;
