@@ -8,7 +8,7 @@ function ResultsDisplay({ gameResult, myReactionTime, opponentReactionTime, onEn
             <p>{gameResult}</p>
             {myReactionTime > 0 && <p>Your Reaction Time: {myReactionTime} ms</p>}
             {opponentReactionTime > 0 && <p>Opponent's Reaction Time: {opponentReactionTime} ms</p>}
-            <Button onClick={onEndGame}>End Game</Button>
+            <Button onClick={onEndGame}>Leave Game</Button>
             <Button onClick={onPlayAgain}>Play Again</Button>
         </ResultsDisplayContainer>
     );
