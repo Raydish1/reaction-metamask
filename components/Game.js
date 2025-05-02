@@ -7,13 +7,16 @@ import { GameContainer, Input, Button } from './styles';
 import ReadyIndicator from './ReadyIndicator';
 import ResultsDisplay from './ResultsDisplay';
 import GameChat from './GameChat';
-import GameControls from './GameControls'; 
-import erc20ABI from '../utils/erc20ABI.js'; 
+import GameControls from './GameControls';
+import erc20ABI from '../utils/erc20ABI.js';
 import reactiongameABI from '../utils/reactiongameABI.js';
+import factoryABI from '../utils/factoryABI.js';
 
+const factoryAddress = process.env.NEXT_PUBLIC_FACTORY_ADDRESS;
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const streamApiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
-const erc20Address = process.env.NEXT_PUBLIC_ERC20_ADDRESS; 
+const erc20Address = process.env.NEXT_PUBLIC_ERC20_ADDRESS; // Make sure this is in your .env file
+const entryFee = '0';
 
 function Game() {
     const [web3, setWeb3] = useState(null);
@@ -35,36 +38,37 @@ function Game() {
     const reactionTimeout = useRef(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [pendingChallengeChannelId, setPendingChallengeChannelId] = useState(null);
-    const [challengerAddress, setChallengerAddress] = useState(null);
     const [canStartGame, setCanStartGame] = useState(false);
     const hasGameStartedRef = useRef(false);
     const myReactionTimeRef = useRef(0);
+    const opponentReactionTimeRef = useRef(0);
 
+    const [factory, setFactory] = useState(null);
 
     const [isWagerEnabled, setIsWagerEnabled] = useState(false);
     const [wagerAmount, setWagerAmount] = useState('');
     const [isWagerGame, setIsWagerGame] = useState(false);
     const [wagerAmountDisplay, setWagerAmountDisplay] = useState(0);
-    const [opponentWagerAmountInput, setOpponentWagerAmountInput] = useState('');
-    const [wagerAcceptedByMe, setWagerAcceptedByMe] = useState(false);
-    const [wagerAcceptedByOpponent, setWagerAcceptedByOpponent] = useState(false);
     const [wageredGameInfo, setWageredGameInfo] = useState(null);
+    const hasOpponentSubmittedReaction = useRef(false);
 
     useEffect(() => {
         const initWeb3AndStream = async () => {
+            
             if (window.ethereum) {
                 try {
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const web3Instance = new Web3(window.ethereum);
                     setWeb3(web3Instance);
+                    
+                  
                     const accounts = await web3Instance.eth.getAccounts();
                     setAccount(accounts[0]);
-                    const contractInstance = new web3Instance.eth.Contract(
-                        reactiongameABI, 
-                        contractAddress
-                    );
-                    setContract(contractInstance);
+                    
+                    const factoryInstance = new web3Instance.eth.Contract(factoryABI, factoryAddress);
+setFactory(factoryInstance);
+
+                    
                     await initStreamChat(accounts[0]);
                 } catch (err) {
                     setError('User denied account access');
@@ -142,31 +146,29 @@ function Game() {
             channelInstance.on('message.new', (event) => {
                 console.log('New message received:', event);
                 setMessages(currentMessages => [...currentMessages, event]);
-                console.log(event.message, event.message.text, isWagerGame, wagerAcceptedByMe, wagerAcceptedByOpponent, hasGameStartedRef.current)
                 if (
                     event.message &&
-                    event.message.text === '!start-game' &&
-                    (!isWagerGame || (isWagerGame && wagerAcceptedByMe && wagerAcceptedByOpponent)) &&
-                    !hasGameStartedRef.current
+                    event.message.text === '!start-game'
                 ) {
                     console.log('Received !start-game, calling startGame');
                     hasGameStartedRef.current = true;
                     startGame();
                 } else if (event.user.id !== account && event.message.text.startsWith('reacted in ')) {
                     const time = parseInt(event.message.text.split(' ')[2].slice(0, -2));
-                    setOpponentReactionTime(time);
+                    console.log(event.message.text)
+                    console.log(time)
+                    opponentReactionTimeRef.current = time;
+                    console.log("Opponent reaction time: ", opponentReactionTimeRef)
                     if (myReactionTimeRef.current > 0) {
-                        console.log(myReactionTime)
-                        console.log(myReactionTimeRef.current)
                         evaluateWinner(myReactionTimeRef.current, time);
                     }
                 }
             });
 
-            if (streamChannel && streamChannel.data.wager) {
+            if (streamChannel && streamChannel.data.isWagerGame) {
                 setIsWagerGame(true);
-                setWagerAmountDisplay(streamChannel.data.wagerAmount);
-                fetchWageredGameInfo(web3.utils.hexToBytes(gameChannelId));
+                setWagerAmountDisplay(parseFloat(streamChannel.data.wagerAmount || 0));
+                //fetchWageredGameInfo(generateGameId(streamChannel.data.player1, streamChannel.data.player2, streamChannel.data.wagerAmount));
             } else {
                 setIsWagerGame(false);
                 setWagerAmountDisplay(0);
@@ -180,8 +182,6 @@ function Game() {
             setIsWagerGame(false);
             setWagerAmountDisplay(0);
             setWageredGameInfo(null);
-            setWagerAcceptedByMe(false);
-            setWagerAcceptedByOpponent(false);
         }
 
         return () => {
@@ -190,230 +190,178 @@ function Game() {
             }
             hasGameStartedRef.current = false;
         };
-    }, [streamClient, gameChannelId, account, myReactionTime, web3]);
-
-    useEffect(() => {
-        if (streamClient && gameChannelId) {
-            const handleMemberUpdated = (event) => {
-                console.log('Channel member updated:', event);
-            };
-
-            streamClient.on('channel.member.updated', handleMemberUpdated);
-
-            return () => {
-                if (streamClient) {
-                    streamClient.off('channel.member.updated', handleMemberUpdated);
-                }
-            };
-        }
-    }, [streamClient, gameChannelId]);
+    }, [streamClient, gameChannelId, account, web3]);
 
     useEffect(() => {
         if (streamClient && account) {
             const handleMemberAdded = (event) => {
                 if (event.member.user_id === account && event.channel && event.channel.id) {
-                    // Check if you were the challenger
-                    if (event.channel.data.challenger === account) {
-                        console.log("You initiated the challenge and joined the channel.");
-                        setGameChannelId(event.channel.id);
-                        setIsWagerGame(event.channel.data.gameType === 'wager');
-                        setWagerAmountDisplay(parseFloat(event.channel.data.wagerAmount || 0));
-                        setPendingChallengeChannelId(null); // Clear pending challenge state
-                        setChallengerAddress(null);
-                        setOpponentAddress(event.channel.members.find(member => member.user_id !== account)?.user_id || '');
-                    } else {
-                        // Handle the case where you were challenged by someone else
-                        const potentialChallenger = event.channel.members.find(member => member.user_id !== account)?.user_id;
-                        if (potentialChallenger) {
-                            const sortedAddresses = [account, potentialChallenger].sort();
-                            const expectedChannelId = sha256(sortedAddresses.join('-')).substring(0, 64);
-                            if (event.channel.id === expectedChannelId && !gameChannelId && event.channel.data.gameType === 'wager') {
-                                setPendingChallengeChannelId(event.channel.id);
-                                setChallengerAddress(potentialChallenger);
-                                setIsWagerGame(true);
-                                setWagerAmountDisplay(event.channel.data.wagerAmount);
-                            } else if (event.channel.id === expectedChannelId && !gameChannelId) {
-                                setPendingChallengeChannelId(event.channel.id);
-                                setChallengerAddress(potentialChallenger);
+                    const channelData = event.channel.data;
+                    if (channelData.isWagerGame && channelData.player1 && channelData.player2 && channelData.wagerAmount) {
+                        const expectedGameId = generateGameId(channelData.player1, channelData.player2, channelData.wagerAmount);
+                        if (event.channel.id === expectedGameId) {
+                            setGameChannelId(event.channel.id);
+                            setIsWagerGame(true);
+                            setWagerAmountDisplay(parseFloat(channelData.wagerAmount));
+                            setOpponentAddress(channelData.player1 === account ? channelData.player2 : channelData.player1);
+                        }
+                    } else if (!channelData.isWagerGame && channelData.members && channelData.members.includes(account)) {
+                        const otherMember = channelData.members.find(id => id !== account);
+                        if (otherMember) {
+                            const sortedMembers = [account, otherMember].sort();
+                            const expectedChannelId = `game-${sortedMembers[0].substring(0, 8)}-${sortedMembers[1].substring(0, 8)}`;
+                            if (event.channel.id === expectedChannelId) {
+                                setGameChannelId(event.channel.id);
                                 setIsWagerGame(false);
                                 setWagerAmountDisplay(0);
+                                setOpponentAddress(otherMember);
                             }
                         }
                     }
                 }
             };
-    
+
             streamClient.on('channel.member.added', handleMemberAdded);
-    
+
             return () => {
                 if (streamClient) {
                     streamClient.off('channel.member.added', handleMemberAdded);
                 }
             };
         }
-    }, [streamClient, account, gameChannelId]);
+    }, [streamClient, account]);
 
-    useEffect(() => {
-        if (wageredGameInfo) {
-            setWagerAcceptedByMe(wageredGameInfo.player1 === account ? wageredGameInfo.player1AcceptedWager : wageredGameInfo.player2AcceptedWager);
-            setWagerAcceptedByOpponent(wageredGameInfo.player1 !== account ? wageredGameInfo.player1AcceptedWager : wageredGameInfo.player2AcceptedWager);
-        }
-    }, [wageredGameInfo, account]);
+    
 
-    const fetchWageredGameInfo = async (gameIdBytes) => {
-        if (contract && gameIdBytes) {
-            try {
-                const info = await contract.methods.getWageredGameInfo(gameIdBytes).call();
-                setWageredGameInfo(info);
-            } catch (error) {
-                console.error('Error fetching wagered game info:', error);
-            }
-        }
+    const generateGameId = (player1, player2, wager) => {
+        const sortedPlayers = [player1.toLowerCase(), player2.toLowerCase()].sort();
+        return sha256(`${sortedPlayers[0]}-${sortedPlayers[1]}-${wager}`);
     };
 
     const handleChallengeClick = async () => {
-        if (account && opponentAddress && isWagerEnabled && parseFloat(wagerAmount) > 0) {
-            try {
-                const tokenContract = new web3.eth.Contract(erc20ABI, erc20Address);
-                const wagerAmountWei = web3.utils.toWei(wagerAmount.toString(), 'ether');
-    
-                await tokenContract.methods.approve(contractAddress, wagerAmountWei).send({ from: account });
-    
+        if (account && opponentAddress) {
+            const sorted = [account.toLowerCase(), opponentAddress.toLowerCase()].sort();
+            let player1 = sorted[0]
+            let player2 = sorted[0]
+const wager = parseFloat(wagerAmount);
+
+if (isWagerEnabled && wager > 0) {
+    const wagerWei = web3.utils.toWei(wager.toString(), 'ether');
+    //const gameId = web3.utils.soliditySha3(sorted[0], sorted[1], wagerWei);   
+
+    try {
+        let gameAddress = await factory.methods.getGame(sorted[0], sorted[1], wagerWei).call();
+
+        if (gameAddress === '0x0000000000000000000000000000000000000000') {
+            const tx = await factory.methods
+                .createGame(erc20Address, wagerWei, sorted[0], sorted[1])
+                .send({ from: account });
+            gameAddress = tx.events.GameCreated.returnValues.gameAddress;
+        }
+
+        const tokenContract = new web3.eth.Contract(erc20ABI, erc20Address);
+        await tokenContract.methods.approve(gameAddress, wagerWei).send({ from: account });
+
+        const gameContract = new web3.eth.Contract(reactiongameABI, gameAddress);
+        console.log("Account:", account);
+console.log("Game address:", gameAddress);
+console.log("Token contract:", tokenContract);
+
+        await gameContract.methods.join().send({ from: account });
+        setContract(gameContract);
+        const gameId = web3.utils.soliditySha3(player1, player2, wagerWei).slice(2);
+        const channel = streamClient.channel('messaging', gameId, {
+            members: [account, opponentAddress],
+            isWagerGame: true,
+            wagerAmount: wager,
+            player1: sorted[0],
+            player2: sorted[1],
+        });
+        await channel.create();
+
+        setStreamChannel(channel);
+        setGameChannelId(gameId);
+        setIsWagerGame(true);
+        setWagerAmountDisplay(wager);
+
+        alert(`Game ready at ${gameAddress}`);
+    } catch (err) {
+        console.error('Error creating or joining wagered game:', err);
+        alert('Error starting game.');
+    }
+}
+ else if (!isWagerEnabled) {
                 const sortedAddresses = [account, opponentAddress].sort();
-                const combinedString = `${sortedAddresses[0].substring(0, 10)}-${sortedAddresses[1].substring(0, 10)}`; // Take first 10 chars
-                const shortChannelId = `wager-${combinedString}`;
-    
-                await contract.methods.createWageredGame(
-                    opponentAddress,
-                    wagerAmountWei
-                ).send({ from: account, value: web3.utils.toWei(process.env.NEXT_PUBLIC_ENTRY_FEE || '0', 'ether') });
-    
+                const shortChannelId = `game-${sortedAddresses[0].substring(0, 8)}-${sortedAddresses[1].substring(0, 8)}`;
                 const channel = streamClient.channel('messaging', shortChannelId, {
                     members: [account, opponentAddress],
-                    gameType: 'wager',
-                    wagerAmount,
-                    challenger: account,
-                    challenged: opponentAddress,
-                    status: 'pending',
+                    isWagerGame: false,
                 });
-    
-                await channel.create();
-                setPendingChallengeChannelId(shortChannelId);
-                setWagerAmountDisplay(parseFloat(wagerAmount));
-                alert(`Challenged ${opponentAddress} with a wager of ${wagerAmount} RC! Waiting for them to accept.`);
-    
-            } catch (error) {
-                console.error("Error creating wagered challenge:", error);
-                alert(`Failed to create wagered challenge: ${error.message}`);
-            }
-        } else if (account && opponentAddress && !isWagerEnabled) {
-            const sortedAddresses = [account, opponentAddress].sort();
-            const combinedString = `${sortedAddresses[0].substring(0, 10)}-${sortedAddresses[1].substring(0, 10)}`; // Take first 10 chars
-            const shortChannelId = `game-${combinedString}`;
-    
-            const channel = streamClient.channel('messaging', shortChannelId, {
-                members: [account, opponentAddress],
-            });
-    
-            try {
-                await channel.create();
-                setGameChannelId(shortChannelId);
-                alert(`Challenged ${opponentAddress}!`);
-            } catch (error) {
-                console.error("Error creating challenge channel:", error);
-                alert(`Failed to create challenge: ${error.message}`);
+                try {
+                    await channel.create();
+                    setGameChannelId(shortChannelId);
+                    setIsWagerGame(false);
+                    setWagerAmountDisplay(0);
+                    alert(`Challenged ${opponentAddress}!`);
+                } catch (error) {
+                    console.error("Error creating challenge channel:", error);
+                    alert(`Failed to create challenge: ${error.message}`);
+                }
+            } else {
+                alert("Please enter a valid opponent address and wager amount if enabled.");
             }
         } else {
-            alert("Please connect your wallet, enter a valid opponent address and wager amount if enabled.");
+            alert("Please connect your wallet and enter an opponent address.");
         }
     };
-    const handleAcceptChallenge = async () => {
-        if (pendingChallengeChannelId && streamClient && challengerAddress && isWagerGame && parseFloat(opponentWagerAmountInput) === wagerAmountDisplay) {
-            try {
-                const tokenContract = new web3.eth.Contract(erc20ABI, erc20Address);
-                const approvalAmount = web3.utils.toWei(opponentWagerAmountInput.toString(), 'ether');
-                await tokenContract.methods.approve(contractAddress, approvalAmount).send({ from: account });
-
-                await contract.methods.acceptWager(
-                    web3.utils.hexToBytes(pendingChallengeChannelId),
-                    approvalAmount
-                ).send({ from: account, value: web3.utils.toWei('0.001', 'ether') }); // Include a small entry fee if needed
-
-                setGameChannelId(pendingChallengeChannelId);
-                setStreamChannel(streamClient.channel('messaging', pendingChallengeChannelId));
-                streamClient.channel('messaging', pendingChallengeChannelId).watch();
-                setPendingChallengeChannelId(null);
-                setOpponentAddress(challengerAddress);
-                setChallengerAddress(null);
-                alert('Wager accepted! You are now in the game channel.');
-            } catch (error) {
-                console.error('Error accepting wager:', error);
-                alert('Failed to accept wager.');
-            }
-        } else if (pendingChallengeChannelId && streamClient && challengerAddress) {
-            setGameChannelId(pendingChallengeChannelId);
-            setStreamChannel(streamClient.channel('messaging', pendingChallengeChannelId));
-            streamClient.channel('messaging', pendingChallengeChannelId).watch();
-            setPendingChallengeChannelId(null);
-            setOpponentAddress(challengerAddress);
-            setChallengerAddress(null);
-            alert('Challenge accepted! You are now in the game channel.');
-        } else {
-            alert('Wager amount does not match or challenge info is missing.');
+    const resolveGame = async (winnerAddress) => {
+        if (!contract || !account || !web3) return;
+        try {
+          await contract.methods.resolveGame(winnerAddress).send({ from: account });
+          console.log(`Resolved game. Winner: ${winnerAddress}`);
+        } catch (err) {
+          console.error('Error resolving game:', err);
+          alert('Failed to resolve game on chain.');
         }
-    };
-
+      };
     const handleStartGameButtonClick = async () => {
         setMyReactionTime(0);
         setOpponentReactionTime(0);
         setGameResult(null);
-    
-        if (streamChannel && !isGameActive) {
+        hasOpponentSubmittedReaction.current = false;
+        hasGameStartedRef.current = false; // Reset game started flag
+
+        if (gameChannelId && !isGameActive) {
             try {
                 const channelState = await streamChannel.query({ watch: true, state: true });
-                console.log(channelState)
                 const memberCount = channelState.watcher_count;
-    
+
                 if (memberCount !== 2) {
                     alert('You need exactly 2 players in the channel to start the game.');
                     return;
                 }
-    
-                if (!isWagerGame || (isWagerGame && wagerAcceptedByMe && wagerAcceptedByOpponent)) {
-                    const messageToSend = { text: '!start-game' };
-                    streamChannel.sendMessage(messageToSend)
-                        .then((result) => console.log('Message sent successfully:', result))
-                        .catch((error) => console.error('Error sending message:', error));
-                } else {
-                    alert('Both players need to accept the wager before starting.');
-                }
+
+                const messageToSend = { text: '!start-game' };
+                streamChannel.sendMessage(messageToSend)
+                    .then((result) => console.log('Message sent successfully:', result))
+                    .catch((error) => console.error('Error sending message:', error));
+
             } catch (error) {
-                console.error('Error checking channel member count:', error);
-                alert('Failed to check member count.');
+                console.error("Error querying channel state:", error);
+                alert("Failed to start game, please try again.");
             }
         } else {
-            console.log("Can't start game: channel not ready or game already active.");
+            alert("Please create or join a channel to start the game.");
         }
     };
-    
-    const resetGameState = () => {
-        setMyReactionTime(0);
-        setOpponentReactionTime(0);
-        myReactionTimeRef.current = 0;
-        
-        setGameResult(null);
-        setCanReact(false);
-        setIsReacting(false);
-        hasGameStartedRef.current = false;
-        setIsGameActive(false);
-        clearTimeout(reactionTimeout.current);
-    };
+
     const startGame = () => {
         console.log("startGame called");
         myReactionTimeRef.current = 0;
         setStartTime(Date.now());
         setMyReactionTime(0);
         setOpponentReactionTime(0);
+        opponentReactionTimeRef.current = 0;
         setGameResult(null);
         setCanReact(false);
         setIsReacting(false);
@@ -427,7 +375,8 @@ function Game() {
             const now = Date.now();
             setMyReactionTime(0);
             setStartTime(now);
-            setCanReact(true);console.log("Reaction time window started at:", now);
+            setCanReact(true);
+            console.log("Reaction time window started at:", now);
         }, randomDelay);
     };
 
@@ -444,49 +393,78 @@ function Game() {
             console.log(myReactionTime);
             streamChannel.sendMessage({ text: `reacted in ${reactionTimeMs}ms` });
     
-            if (isWagerGame && contract && gameChannelId) {
-                try {
-                    await contract.methods.submitReactionTime(web3.utils.hexToBytes(gameChannelId), reactionTimeMs).send({ from: account });
-                    setIsReacting(false);
-                    // Winner evaluation for wagered games will likely be triggered by a smart contract event
-                } catch (error) {
-                    console.error('Error submitting reaction time to contract:', error);
-                    setIsReacting(false);
-                    alert('Failed to submit reaction time to contract.');
-                }
-            } else {
+            
                 // For unwagered games, winner evaluation happens locally
                 setIsReacting(false); // No contract interaction, so immediately stop reacting state
-                if (opponentReactionTime > 0) {
-                    evaluateWinner(reactionTimeMs, opponentReactionTime);
+                if (opponentReactionTimeRef.current > 0) {
+                    evaluateWinner(reactionTimeMs, opponentReactionTimeRef.current);
                 }
+            
+        }
+    };
+
+   
+
+    const evaluateWinner = async (myTime, opponentTime) => {
+        console.log("evaluating winner")
+        let winner = null;
+      
+        if (myTime < opponentTime) {
+          setGameResult('You won!');
+          winner = account;
+        } else if (opponentTime < myTime) {
+          setGameResult('You lost!');
+          winner = opponentAddress;
+        } else {
+          setGameResult('It\'s a tie!');
+          setIsGameActive(false);
+          return;
+        }
+      
+        setIsGameActive(false);
+      
+        // Only the winner calls resolveGame
+        if (isWagerGame && contract && winner === account) {
+          try {
+            await contract.methods.resolveGame(winner).send({ from: account });
+            console.log(`Resolved game in contract. Winner: ${winner}`);
+          } catch (err) {
+            console.error('Failed to resolve game:', err);
+          }
+        }
+      };
+      
+    
+
+    const handleInputChange = (event) => {
+        setOpponentAddress(event.target.value);
+    };
+
+    const handleWagerToggle = (event) => {
+        setIsWagerEnabled(event.target.checked);
+        setWagerAmount(''); // Reset wager amount when toggling
+    };
+
+    const handleWagerAmountChange = (event) => {
+        setWagerAmount(event.target.value);
+    };
+
+    const sendMessage = async () => {
+        if (streamChannel && newMessage) {
+            try {
+                await streamChannel.sendMessage({ text: newMessage });
+                setNewMessage('');
+            } catch (error) {
+                console.error('Error sending message:', error);
             }
         }
     };
 
-    const evaluateWinner = (player1Time, player2Time) => {
-        if (player1Time > 0 && player2Time > 0 && (!gameResult || gameResult == null)) {
-            let reactresult = '';
-            if (player1Time < player2Time) {
-                reactresult = 'You won!';
-            } else if (player2Time < player1Time) {
-                reactresult = 'You Lost!';
-            } else {
-                reactresult = 'It\'s a tie!';
-            }
-            console.log('Game result determined:', reactresult);
-            console.log(player1Time, player2Time)
-            setGameResult(reactresult);
-            setIsGameActive(false);
-            console.log('isGameActive set to false');
-            clearTimeout(reactionTimeout.current);
-            setCanReact(false);
-            console.log('canReact set to false');
-            hasGameStartedRef.current = false;
-            console.log('hasGameStartedRef set to false');
-        }
+    const handleNewMessageChange = (event) => {
+        setNewMessage(event.target.value);
     };
 
+    
     const handleEndGame = async () => {
         setIsGameActive(false);
         setStartTime(0);
@@ -508,35 +486,28 @@ function Game() {
         setGameChannelId(null);
         setStreamChannel(null);
         setMessages([]);
-        setPendingChallengeChannelId(null);
-        setChallengerAddress(null);
+        
+        
         setOpponentAddress('');
         setIsWagerGame(false);
         setWagerAmountDisplay(0);
-        setWagerAcceptedByMe(false);
-        setWagerAcceptedByOpponent(false);
+     
         setWageredGameInfo(null);
     };
-
-    const sendMessage = async () => {
-        if (streamChannel && newMessage) {
-            await streamChannel.sendMessage({ text: newMessage });
-            setNewMessage('');
-        }
-    };
-
-    const handleNewMessageChange = (e) => {
-        setNewMessage(e.target.value);
-    };
-
+    
     return (
         <GameContainer>
-            <h1>Decentralized Reaction Game (Wager not functional yet)</h1>
+            <h1>Decentralized Reaction Game (Wager Functional)</h1>
+            {account && (
+  <p style={{ fontSize: '0.9rem', color: '#555', marginTop: '-10px' }}>
+    Connected as: {account}
+  </p>
+)}
             {error && <p style={{ color: 'red' }}>{error}</p>}
     
             {!streamClient ? (
                 <p>Connecting to Stream Chat...</p>
-            ) : pendingChallengeChannelId ? (
+            ) : false ? (
                 <div>
                     <p>{challengerAddress ? `${challengerAddress.substring(0, 8)}...` : 'A player'} has challenged you to a
                         {isWagerGame ? ` wagered game of ${wagerAmountDisplay} tokens!` : ' game!'}</p>
@@ -598,39 +569,36 @@ function Game() {
                         onSendMessage={sendMessage}
                     />
     
-                    {gameResult ? (
-                        <ResultsDisplay
-                            gameResult={gameResult}
-                            myReactionTime={myReactionTime}
-                            opponentReactionTime={opponentReactionTime}
-                            onEndGame={handleEndGame}
-                            onPlayAgain={handleStartGameButtonClick} // No play again for wagered games
-                        />
-                    ) : isGameActive ? (
-                        <GameControls
-                            isGameActive={isGameActive}
-                            canReact={canReact}
-                            isReacting={isReacting}
-                            myReactionTime={myReactionTime}
-                            onSubmitReaction={handleSubmitReaction}
-                            onStartGame={handleStartGameButtonClick}
-                        />
-                    ) : (!isGameActive && (!isWagerGame || (wagerAcceptedByMe && wagerAcceptedByOpponent))) ? (
-                        <Button
-                            onClick={handleStartGameButtonClick}
-                            disabled={isWagerGame && (!wagerAcceptedByMe || !wagerAcceptedByOpponent)}
-                        >
-                            Start Game
-                        </Button>
-                    ) : isWagerGame && (!wagerAcceptedByMe || !wagerAcceptedByOpponent) ? (
-                        <p>Waiting for both players to accept the wager.</p>
-                    ) : (
-                        <p>Waiting for opponent to accept the challenge.</p>
-                    )}
+    {gameResult ? (
+    <ResultsDisplay
+        gameResult={gameResult}
+        myReactionTime={myReactionTime}
+        opponentReactionTime={opponentReactionTime}
+        onEndGame={handleEndGame}
+        onPlayAgain={handleStartGameButtonClick} // No play again for wagered games
+    />
+) : isGameActive ? (
+    <GameControls
+        isGameActive={isGameActive}
+        canReact={canReact}
+        isReacting={isReacting}
+        myReactionTime={myReactionTime}
+        onSubmitReaction={handleSubmitReaction}
+        onStartGame={handleStartGameButtonClick}
+    />
+) : (!isGameActive && contract) ? (
+    <Button onClick={handleStartGameButtonClick}>
+        Start Game
+    </Button>
+) : (
+    <p>Waiting for opponent to accept the challenge.</p>
+)}
+
     
                     
                 </div>
             )}
         </GameContainer>
     );}
-export default Game;    
+
+export default Game;

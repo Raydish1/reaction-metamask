@@ -2,541 +2,36 @@ const reactiongameABI = [
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "_gameId",
-				"type": "bytes32"
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
 			},
 			{
 				"internalType": "uint256",
 				"name": "_wagerAmount",
 				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_player1",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_player2",
+				"type": "address"
 			}
 		],
-		"name": "acceptWager",
-		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_opponent",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_wagerAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "createWageredGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_initialOwner",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_wagerToken",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_entryFee",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "payable",
 		"type": "constructor"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			}
-		],
-		"name": "OwnableInvalidOwner",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "OwnableUnauthorizedAccount",
-		"type": "error"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "bytes32",
-				"name": "gameId",
-				"type": "bytes32"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "reactionTime",
-				"type": "uint256"
-			}
-		],
-		"name": "ReactionSubmitted",
-		"type": "event"
-	},
-	{
 		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_gameId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_reactionTime",
-				"type": "uint256"
-			}
-		],
-		"name": "submitReactionTime",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "bytes32",
-				"name": "gameId",
-				"type": "bytes32"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "wagerAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "WagerAccepted",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "bytes32",
-				"name": "gameId",
-				"type": "bytes32"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player1",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player2",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "wagerAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "WageredGameCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "bytes32",
-				"name": "gameId",
-				"type": "bytes32"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "player1ReactionTime",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "player2ReactionTime",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "wagerAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "WageredGameEnded",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "bytes32",
-				"name": "gameId",
-				"type": "bytes32"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "WinningsDistributed",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "entryFee",
+		"name": "gameResolved",
 		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "gamesPlayed",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_player",
-				"type": "address"
-			}
-		],
-		"name": "getAverageReactionTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_player",
-				"type": "address"
-			}
-		],
-		"name": "getLosses",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_gameId",
-				"type": "bytes32"
-			}
-		],
-		"name": "getWageredGameInfo",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "address",
-						"name": "player1",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "player2",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "player1ReactionTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "player2ReactionTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "wagerAmount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bool",
-						"name": "gameEnded",
-						"type": "bool"
-					},
-					{
-						"internalType": "address",
-						"name": "winner",
-						"type": "address"
-					},
-					{
-						"internalType": "bool",
-						"name": "player1AcceptedWager",
-						"type": "bool"
-					},
-					{
-						"internalType": "bool",
-						"name": "player2AcceptedWager",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct ReactionGameWithWagers.WageredGame",
-				"name": "",
-				"type": "tuple"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_player",
-				"type": "address"
-			}
-		],
-		"name": "getWins",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "losses",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "totalReactionTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"name": "wageredGames",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "player1",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "player2",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "player1ReactionTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "player2ReactionTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "wagerAmount",
-				"type": "uint256"
-			},
 			{
 				"internalType": "bool",
-				"name": "gameEnded",
-				"type": "bool"
-			},
-			{
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			},
-			{
-				"internalType": "bool",
-				"name": "player1AcceptedWager",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "player2AcceptedWager",
+				"name": "",
 				"type": "bool"
 			}
 		],
@@ -545,7 +40,118 @@ const reactiongameABI = [
 	},
 	{
 		"inputs": [],
-		"name": "wagerToken",
+		"name": "getState",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "_player1",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_player2",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "_isFull",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "_resolved",
+				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "_winner",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "hasJoined",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "isFull",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "join",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "player1",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "player2",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_winner",
+				"type": "address"
+			}
+		],
+		"name": "resolveGame",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "token",
 		"outputs": [
 			{
 				"internalType": "contract IERC20",
@@ -557,19 +163,26 @@ const reactiongameABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "wins",
+		"inputs": [],
+		"name": "wagerAmount",
 		"outputs": [
 			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "winner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
