@@ -46,33 +46,65 @@ export const ReadyIndicatorContainer = styled.div`
 `;
 
 export const ChatContainer = styled.div`
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-    width: 300px;
-    max-height: 200px;
+    border: 2px solid #000;
+    border-radius: 4px;
+    height: 200px; 
     overflow-y: auto;
+    padding: 10px;
+    margin-right:10px;
+    background-color:rgb(173, 215, 249);
 `;
 
+export const Ch3 = styled.h3`
+text-align:center;
+`;
 export const Message = styled.div`
-    margin-bottom: 5px;
+    padding: 8px 0;
+    border-bottom: 0px solid #eee;
+    &:last-child {
+        border-bottom: none;
+    }
+    strong {
+        font-weight: bold;
+        margin-right: 5px;
+    }
 `;
 
 export const ChatInputContainer = styled.div`
     display: flex;
-    width: 300px;
+    margin-top: 10px;
+    margin-right:10px;
 `;
 
 export const ChatInput = styled.input`
     flex-grow: 1;
     padding: 8px;
-    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    font-size: 1rem;
+    &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
 `;
 
-export const ChatButton = styled(Button)`
+export const ChatButton = styled.button`
+    background-color: #007bff;
+    color: white;
+    border: none;
     padding: 8px 15px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 1rem;
+    &:hover {
+        background-color: #0056b3;
+    }
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
 `;
-
 export const GameControlsContainer = styled.div`
     display: flex;
     flex-direction: column;

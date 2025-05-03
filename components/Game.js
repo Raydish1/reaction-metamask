@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Web3 from 'web3';
 import { StreamChat } from 'stream-chat';
 import sha256 from 'js-sha256';
+import styled from 'styled-components';
 
 import { GameContainer, Input, Button } from './styles';
 import ReadyIndicator from './ReadyIndicator';
@@ -15,9 +16,41 @@ import factoryABI from '../utils/factoryABI.js';
 const factoryAddress = process.env.NEXT_PUBLIC_FACTORY_ADDRESS;
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const streamApiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
-const erc20Address = process.env.NEXT_PUBLIC_ERC20_ADDRESS; // Make sure this is in your .env file
+const erc20Address = process.env.NEXT_PUBLIC_ERC20_ADDRESS; 
 const entryFee = '0';
 
+const HowToPlayContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+`;
+
+const HowToPlayBox = styled.div`
+    flex: 1;
+    justify-content:center;
+    align-items:center;
+    background-color: #ffffff; 
+    padding: 15px;
+    height: 150px;
+    width:150px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); 
+`;
+
+const HowToPlayTitle = styled.h3`
+    margin-top: 0; 
+    margin-bottom: 30px; 
+    color: #333; 
+`;
+
+const HowToPlayText = styled.p`
+    color: #666; 
+    font-size: 0.9rem; 
+`;
 function Game() {
     const [web3, setWeb3] = useState(null);
     const [account, setAccount] = useState(null);
@@ -42,6 +75,7 @@ function Game() {
     const hasGameStartedRef = useRef(false);
     const myReactionTimeRef = useRef(0);
     const opponentReactionTimeRef = useRef(0);
+    const [hasMyReacted, setHasMyReacted] = useState(false);
 
     const [factory, setFactory] = useState(null);
 
@@ -361,13 +395,14 @@ console.log("Token contract:", tokenContract);
         setStartTime(Date.now());
         setMyReactionTime(0);
         setOpponentReactionTime(0);
+        setHasMyReacted(false);
         opponentReactionTimeRef.current = 0;
         setGameResult(null);
         setCanReact(false);
         setIsReacting(false);
         hasGameStartedRef.current = true;
         setIsGameActive(true);
-        const minDelay = 2000; // Reduced delay for testing
+        const minDelay = 2000; 
         const maxDelay = 5000;
         const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
 
@@ -381,27 +416,37 @@ console.log("Token contract:", tokenContract);
     };
 
     const handleSubmitReaction = async () => {
-        if (isGameActive && canReact && !isReacting && streamChannel) {
-            console.log('handleSubmitReaction called');
-            setCanReact(false);
-            console.log('canReact set to false in handleSubmitReaction');
-            setIsReacting(true);
-            const reactionTimeMs = Date.now() - startTime;
-            console.log(reactionTimeMs)
-            setMyReactionTime(reactionTimeMs);
-            myReactionTimeRef.current = reactionTimeMs;
-            console.log(myReactionTime);
-            streamChannel.sendMessage({ text: `reacted in ${reactionTimeMs}ms` });
-    
-            
-                // For unwagered games, winner evaluation happens locally
-                setIsReacting(false); // No contract interaction, so immediately stop reacting state
-                if (opponentReactionTimeRef.current > 0) {
-                    evaluateWinner(reactionTimeMs, opponentReactionTimeRef.current);
-                }
-            
-        }
-    };
+                if (isGameActive && !isReacting && !hasMyReacted) {
+                    if (canReact) {
+                        console.log('handleSubmitReaction called');
+                        setCanReact(false);
+                        console.log('canReact set to false in handleSubmitReaction');
+                        setIsReacting(true);
+                        const reactionTimeMs = Date.now() - startTime;
+                        console.log(reactionTimeMs);
+                        setMyReactionTime(reactionTimeMs);
+                        myReactionTimeRef.current = reactionTimeMs;
+                        console.log(myReactionTime);
+                        streamChannel.sendMessage({ text: `reacted in ${reactionTimeMs}ms` });
+                        setHasMyReacted(true);
+                        setIsReacting(false);
+                        if (opponentReactionTimeRef.current > 0) {
+                            evaluateWinner(reactionTimeMs, opponentReactionTimeRef.current);
+                        }
+                    } else {
+                        // Clicked too early
+                        console.log('Clicked before green!');
+                        setMyReactionTime(10000);
+                        myReactionTimeRef.current = 10000;
+                        streamChannel.sendMessage({ text: `reacted in 10000ms (early click)` });
+                        setHasMyReacted(true);
+                        setIsReacting(false);
+                        if (opponentReactionTimeRef.current > 0) {
+                            evaluateWinner(10000, opponentReactionTimeRef.current);
+                        }
+                    }
+                }
+            };
 
    
 
@@ -436,18 +481,7 @@ console.log("Token contract:", tokenContract);
       
     
 
-    const handleInputChange = (event) => {
-        setOpponentAddress(event.target.value);
-    };
-
-    const handleWagerToggle = (event) => {
-        setIsWagerEnabled(event.target.checked);
-        setWagerAmount(''); // Reset wager amount when toggling
-    };
-
-    const handleWagerAmountChange = (event) => {
-        setWagerAmount(event.target.value);
-    };
+   
 
     const sendMessage = async () => {
         if (streamChannel && newMessage) {
@@ -477,7 +511,7 @@ console.log("Token contract:", tokenContract);
         if (streamChannel) {
             try {
                 await streamChannel.removeMembers([account]);
-                await streamChannel.stopWatching(); // optional but good for cleanup
+                await streamChannel.stopWatching(); 
                 console.log("Left the channel successfully.");
             } catch (error) {
                 console.error("Failed to leave the channel:", error);
@@ -495,110 +529,194 @@ console.log("Token contract:", tokenContract);
         setWageredGameInfo(null);
     };
     
-    return (
-        <GameContainer>
-            <h1>Decentralized Reaction Game (Wager Functional)</h1>
-            {account && (
-  <p style={{ fontSize: '0.9rem', color: '#555', marginTop: '-10px' }}>
-    Connected as: {account}
-  </p>
-)}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-    
-            {!streamClient ? (
-                <p>Connecting to Stream Chat...</p>
-            ) : false ? (
-                <div>
-                    <p>{challengerAddress ? `${challengerAddress.substring(0, 8)}...` : 'A player'} has challenged you to a
-                        {isWagerGame ? ` wagered game of ${wagerAmountDisplay} tokens!` : ' game!'}</p>
-                    {isWagerGame && (
-                        <input
-                            type="number"
-                            placeholder={`Enter ${wagerAmountDisplay} to accept`}
-                            value={opponentWagerAmountInput}
-                            onChange={(e) => setOpponentWagerAmountInput(e.target.value)}
-                        />
-                    )}
-                    <Button
-                        onClick={handleAcceptChallenge}
-                        disabled={isWagerGame && (isNaN(parseFloat(opponentWagerAmountInput)) || parseFloat(opponentWagerAmountInput) !== wagerAmountDisplay)}
+    const GameContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-height: 100vh; 
+    margin: 0;
+    padding: 0;
+    background-color:rgb(213, 215, 218); 
+    color: white; 
+    font-family: Arial;
+`;
+return (
+    <GameContainer>
+        <div
+            style={{
+                backgroundColor: isGameActive
+                    ? hasMyReacted
+                        ? 'blue'
+                        : canReact
+                            ? 'green'
+                            : 'red'
+                    : '#1976d2',
+                color: 'white',
+                marginBottom: '20px',
+                display: 'flex',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                width: '100%',
+                borderRadius: '0',
+                cursor: isGameActive && canReact ? 'pointer' : 'default',
+                height: '400px', 
+            }}
+            onClick={() => {
+                if (isGameActive && !isReacting && !hasMyReacted) {
+                    handleSubmitReaction();
+                }
+            }}
+        >
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                {!isGameActive && !gameResult && <h1>Test your Reaction Speed. Win Money.</h1>}
+                {account && !isGameActive && !gameResult && (
+                    <p style={{ fontSize: '0.9rem', color: '#eee', marginTop: '-10px', marginBottom: '5px' }}>
+                        Connected as: {account}
+                    </p>
+                )}
+               
+                {gameChannelId && !gameResult && !isGameActive && (
+                    <>
+                    <button
+                      onClick={handleStartGameButtonClick}
+                      style={{
+                        borderRadius: '25px',
+                        padding: '10px 20px',
+                        border: '1px solid black',
+                        backgroundColor: '#007bff', 
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        margin: '10px', 
+                      }}
                     >
-                        Accept Challenge
-                    </Button>
-                </div>
-            ) : !gameChannelId ? (
-                <div>
-                    <Input
-                        type="text"
-                        placeholder="Opponent's Wallet Address"
-                        value={opponentAddress}
-                        onChange={(e) => setOpponentAddress(e.target.value)}
-                    />
-                    <label>
-                        Enable Wager:
-                        <input
-                            type="checkbox"
-                            checked={isWagerEnabled}
-                            onChange={(e) => setIsWagerEnabled(e.target.checked)}
-                        />
-                    </label>
-                    {isWagerEnabled && (
-                        <input
-                            type="number"
-                            placeholder="Wager Amount (in your token)"
-                            value={wagerAmount}
-                            onChange={(e) => setWagerAmount(e.target.value)}
-                        />
-                    )}
-                    <Button
-                        onClick={handleChallengeClick}
-                        disabled={!opponentAddress || (isWagerEnabled && !(parseFloat(wagerAmount) > 0))}
+                      Start Game
+                    </button>
+                    <button
+                      onClick={handleEndGame}
+                      style={{
+                        borderRadius: '25px',
+                        padding: '10px 20px',
+                        border: '1px solid black',
+                        backgroundColor: '#007bff', 
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                      }}
                     >
-                        Challenge Player
-                    </Button>
-                    {gameChannelId && <p>Game channel created with {opponentAddress}.</p>}
-                </div>
-            ) : (
-                <div>
-                    {isWagerGame && <p>Wager Amount: {wagerAmountDisplay} tokens</p>}
-    
-                    <GameChat
-                        messages={messages}
-                        newMessage={newMessage}
-                        onNewMessageChange={handleNewMessageChange}
-                        onSendMessage={sendMessage}
-                    />
-    
-    {gameResult ? (
-    <ResultsDisplay
-        gameResult={gameResult}
-        myReactionTime={myReactionTime}
-        opponentReactionTime={opponentReactionTime}
-        onEndGame={handleEndGame}
-        onPlayAgain={handleStartGameButtonClick} // No play again for wagered games
-    />
-) : isGameActive ? (
-    <GameControls
-        isGameActive={isGameActive}
-        canReact={canReact}
-        isReacting={isReacting}
-        myReactionTime={myReactionTime}
-        onSubmitReaction={handleSubmitReaction}
-        onStartGame={handleStartGameButtonClick}
-    />
-) : (!isGameActive && contract) ? (
-    <Button onClick={handleStartGameButtonClick}>
-        Start Game
-    </Button>
-) : (
-    <p>Waiting for opponent to accept the challenge.</p>
-)}
+                      Leave Game
+                    </button>
+                  </>
+                )}
+                {error && !gameResult && <p style={{ color: 'red' }}>{error}</p>}
 
-    
-                    
+                {!streamClient && !isGameActive && !gameResult && (
+                    <p>Connecting to Stream Chat...</p>
+                )}
+                {!gameChannelId && !isGameActive && !gameResult && streamClient && (
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                        <Input
+                            type="text"
+                            placeholder="Opponent's Wallet Address"
+                            value={opponentAddress}
+                            onChange={(e) => setOpponentAddress(e.target.value)}
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', color: 'black' }}
+                        />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            Enable Wager:
+                            <input
+                                type="checkbox"
+                                checked={isWagerEnabled}
+                                onChange={(e) => setIsWagerEnabled(e.target.checked)}
+                                style={{ margin: '0' }}
+                            />
+                        </label>
+                        {isWagerEnabled && (
+                            <Input
+                                type="number"
+                                placeholder="Wager Amount (in your token)"
+                                value={wagerAmount}
+                                onChange={(e) => setWagerAmount(e.target.value)}
+                                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', color: 'black' }}
+                            />
+                        )}
+                        <Button
+                            onClick={handleChallengeClick}
+                            disabled={!opponentAddress || (isWagerEnabled && !(parseFloat(wagerAmount) > 0))}
+                        >
+                            Challenge Player
+                        </Button>
+                    </div>
+                )}
+                {gameChannelId && !isGameActive && !gameResult && streamClient && !contract && (
+                    <p style={{ color: '#eee' }}>Game channel created with {opponentAddress.substring(0, 8)}...</p>
+                )}
+
+                {isGameActive && !gameResult && (
+                    <h2 style={{ color: 'white' }}>
+                        {hasMyReacted ? 'Reacted!' : canReact ? 'Click Anywhere!' : 'Get Ready...'}
+                    </h2>
+                )}
+                {gameResult && (
+                    <ResultsDisplay
+                        gameResult={gameResult}
+                        myReactionTime={myReactionTime}
+                        opponentReactionTime={opponentReactionTimeRef.current}
+                        onEndGame={handleEndGame}
+                        onPlayAgain={handleStartGameButtonClick}
+                    />
+                )}
+                {isWagerGame && gameChannelId && <p>Wager Amount: {wagerAmountDisplay} tokens</p>}
+            </div>
+            {gameChannelId && streamClient && (
+                <div style={{ width: '300px', marginLeft: '20px', display: 'flex', flexDirection: 'column', height: '400px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0 0 0 2px' }}> 
+                    <div style={{ backgroundColor: 'transparent', padding: '10px', marginBottom: '10px', textAlign: 'center' }}>
+                        Chat with Opponent
+                    </div>
+                    <div style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        backgroundColor: 'transparent',
+                        paddingLeft: '10px',
+                        paddingRight: '10px'
+                    }}>
+                        {messages.map((msg, i) => (
+                            <p key={i} style={{ color: 'white', marginBottom: '5px', textAlign: 'left' }}>
+                                {msg.user.id.substring(0, 8)}...: {msg.text} 
+                            </p>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', paddingLeft: '0px' }}>
+                        <Input
+                            type="text"
+                            placeholder="Type your message..."
+                            value={newMessage}
+                            onChange={handleNewMessageChange}
+                            style={{ flex: 1, padding: '0px', marginLeft:'1px', borderRadius: '4px 0 0 4px', color: 'black', backgroundColor: 'white', height:'60%' }}
+                        />
+                        <Button onClick={sendMessage} style={{ borderRadius: '0 4px 4px 0', height:'60%',marginLeft:'-10px', }}>
+                            Send
+                        </Button>
+                    </div>
+                   
                 </div>
             )}
-        </GameContainer>
-    );}
+        </div>
 
+        <HowToPlayContainer>
+            <HowToPlayBox>
+                <HowToPlayTitle>Connect & Challenge</HowToPlayTitle>
+                <HowToPlayText>Both players must enter their opponent's wallet and the same wager info to join the game</HowToPlayText>
+            </HowToPlayBox>
+            <HowToPlayBox>
+                <HowToPlayTitle>Start the Duel</HowToPlayTitle>
+                <HowToPlayText>Once both players are in, one player clicks the "Start Game" button to initiate the game</HowToPlayText>
+            </HowToPlayBox>
+            <HowToPlayBox>
+                <HowToPlayTitle>React & Win</HowToPlayTitle>
+                <HowToPlayText>As soon as the game starts, the big blue section will turn red. Once it turns green, react as fast as you can! The one with faster reflexes will win and take the prize.</HowToPlayText>
+            </HowToPlayBox>
+        </HowToPlayContainer>
+    </GameContainer>
+);}
 export default Game;

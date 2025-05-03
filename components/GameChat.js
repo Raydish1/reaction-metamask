@@ -1,10 +1,10 @@
 import React from 'react';
-import { ChatContainer, Message, ChatInputContainer, ChatInput, ChatButton } from './styles';
+import { ChatContainer, Message, ChatInputContainer, ChatInput, ChatButton, Ch3} from './styles';
 
 function GameChat({ messages, newMessage, onNewMessageChange, onSendMessage }) {
     return (
         <div>
-            <h3>Chat with Opponent</h3>
+            <Ch3>Chat with Opponent</Ch3>
             <ChatContainer>
                 {messages.map((msg) => (
                     <Message key={msg.id}>
@@ -28,4 +28,4 @@ function GameChat({ messages, newMessage, onNewMessageChange, onSendMessage }) {
     );
 }
 
-export default GameChat;
+export default React.memo(GameChat);
